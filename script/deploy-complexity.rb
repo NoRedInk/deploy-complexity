@@ -86,11 +86,20 @@ def deploy(from, to)
   puts
 end
 
-last_n_deploys = 30
-deploys = `git tag -l | grep production`.split(/\n/).drop(1)
-deploys = deploys.last(1+last_n_deploys) if last_n_deploys
-deploys.each_cons(2) do |(from, to)|
-  deploy(from, to)
-end
+historical = false
+action = "staging"
 
-# deploy("production", "staging")
+if historical
+  last_n_deploys = 30
+  deploys = `git tag -l | grep production`.split(/\n/).drop(1)
+  deploys = deploys.last(1+last_n_deploys) if last_n_deploys
+  deploys.each_cons(2) do |(from, to)|
+    deploy(from, to)
+  end
+elsif action == "staging"
+  deploy("production", "staging")
+elsif action == "master"
+  deploy("production", "master")
+elsif action == "promote"
+  deploy("staging", "master")
+end
