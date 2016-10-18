@@ -72,20 +72,44 @@ def deploy(from, to)
   puts
 end
 
-historical = false
+branch = nil
+last_n_deploys = nil
 action = "staging"
 
-if historical
-  last_n_deploys = 30
-  deploys = `git tag -l | grep production`.split(/\n/).drop(1)
+require 'optparse'
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: %s [base branch]..[deploy branch]" % [File.basename($PROGRAM_NAME)]
+  opts.on("-b", "--branch-history [BRANCH]", String, "Show historical deploys from branch") do |e|
+    branch = e || "production"
+  end
+  opts.on("-d", "--deploys [N]", Integer, "Only show last N deploys",
+          "Only works with --branch-history") do |e|
+    last_n_deploys = e.to_i
+    last_n_deploys = 5 if last_n_deploys.zero?
+  end
+  opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
+end
+
+optparse.parse!(ARGV)
+if ARGV.size == 0
+  action = "promote"
+elsif ARGV.size <= 2
+  action = "diff"
+else
+  abort(optparse.to_s)
+end
+
+if branch
+  deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
   deploys = deploys.last(1+last_n_deploys) if last_n_deploys
   deploys.each_cons(2) do |(from, to)|
     deploy(from, to)
   end
-elsif action == "staging"
-  deploy("origin/production", "origin/staging")
-elsif action == "master"
-  deploy("origin/production", "origin/master")
 elsif action == "promote"
+  deploy("origin/production", "origin/staging")
   deploy("origin/staging", "origin/master")
+else
+  to = ARGV.shift
+  from = ARGV.shift || `git tag -l | grep production`.split(/\n/).last.chomp
+  deploy(from, to)
 end
