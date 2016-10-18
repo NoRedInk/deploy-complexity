@@ -75,7 +75,9 @@ def deploy(from, to)
   puts
 end
 
+last_n_deploys = nil
 deploys = `git tag -l | grep production`.split(/\n/).drop(1)
+deploys = deploys.last(1+last_n_deploys) if last_n_deploys
 deploys.each_cons(2) do |(from, to)|
   deploy(from, to)
 end
