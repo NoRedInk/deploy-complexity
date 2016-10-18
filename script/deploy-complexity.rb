@@ -1,5 +1,19 @@
 #!/usr/bin/env ruby
 
+# describes complexity of upcoming and past deploys, with statistics like number
+# of PR's, commits, and line changes as well direct links to the github diff for
+# the deploy, links to migrations, and individual PRs
+#
+# Examples:
+#
+# $ script/deploy-complexity.rb
+# Displays code that would be promoted if staging deployed to production, or master
+# was promoted to staging.
+# $ script/deploy-complexity.rb -b -d
+# Displays the last 5 deploys on production
+# $ script/deploy-complexity.rb origin/demo origin/master
+# Displays the changes that would be deployed to demo
+
 require 'time'
 
 def parse_when(tag)
