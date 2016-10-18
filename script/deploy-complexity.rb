@@ -47,7 +47,7 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
-def deploy(from, to, base_branch: "production")
+def deploy(from, to)
   from = safe_name(from)
   to = safe_name(to)
 
@@ -61,7 +61,7 @@ def deploy(from, to, base_branch: "production")
   shortstat = `git diff --shortstat --summary #{from}...#{to}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
     if m = line.match(%r{db/migrate/(.*)$})
-      MIGRATE_FORMAT % [base_branch, m[1]]
+      MIGRATE_FORMAT % [to, m[1]]
     end
   end
 
