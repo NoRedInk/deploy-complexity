@@ -29,6 +29,19 @@ def time_between_deploys(from, to)
   end
 end
 
+def base_tag(from)
+  base = case from
+  when /staging/
+    "staging"
+  when /demo/
+    "demo"
+  else
+    "production"
+  end
+
+  `git describe --match="#{base}*" #{to}~1`.chomp
+end
+
 def safe_name(name)
   name.chomp.split(%r{/}).last
 end
@@ -37,18 +50,12 @@ def deploy(from, to)
   from = safe_name(from)
   to = safe_name(to)
 
-  delta = `git describe --match="production*" #{to}~1`.chomp
   revision = `git rev-parse --short #{to}`.chomp
-
-  commits = if m = delta.match(/-(\d+)-g/)
-    m[1].to_i
-  else
-    0
-  end
 
   time_delta = time_between_deploys(from, to)
 
-  merges = `git log --oneline --merges -m --first-parent #{from}..#{to}`.split(/\n/)
+  commits = `git log --oneline #{from}...#{to}`.split(/\n/)
+  merges = commits.grep(/Merge/)
 
   prs = merges.map do |line|
     if m = line.match(/pull request #(\d+) from (.*)$/)
@@ -57,9 +64,9 @@ def deploy(from, to)
   end.compact
 
   puts "Deploy %s [%s]" % [to, revision]
-  if commits > 1
+  if commits.count > 0
     puts "%d prs of %d merges, %d commits %s" %
-         [prs.count, merges.count, commits, time_delta]
+         [prs.count, merges.count, commits.count, time_delta]
     puts COMPARE_FORMAT % [from,to]
     puts prs.map { |x| PR_FORMAT % x }
   else
