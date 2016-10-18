@@ -9,7 +9,7 @@ def parse_when(tag)
 end
 
 REPO_URL = "https://github.com/NoRedInk/NoRedInk/"
-PR_FORMAT = REPO_URL + "pull/%d"
+PR_FORMAT = REPO_URL + "pull/%d - %s"
 COMPARE_FORMAT= REPO_URL + "compare/%s...%s"
 MIGRATE_FORMAT = REPO_URL + "blob/%s/db/migrate/%s"
 
@@ -66,7 +66,9 @@ def deploy(from, to)
   end
 
   prs = merges.map { |line|
-    line.match(/pull request #(\d+) from (.*)$/) { |m| m[1].to_i }
+    line.match(/pull request #(\d+) from (.*)$/) do |m|
+      [m[1].to_i, safe_name(m[2])]
+    end
   }.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
