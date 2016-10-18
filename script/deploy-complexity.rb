@@ -57,16 +57,19 @@ def deploy(from, to)
   commits = `git log --oneline #{from}...#{to}`.split(/\n/)
   merges = commits.grep(/Merge/)
 
+  shortstat = `git diff --shortstat #{from}...#{to}`
+
   prs = merges.map do |line|
     if m = line.match(/pull request #(\d+) from (.*)$/)
       m[1].to_i
     end
   end.compact
 
-  puts "Deploy %s [%s]" % [to, revision]
+  puts "Deploy tag %s [%s]" % [to, revision]
   if commits.count > 0
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
+    puts shortstat
     puts COMPARE_FORMAT % [from,to]
     puts prs.map { |x| PR_FORMAT % x }
   else
