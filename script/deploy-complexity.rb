@@ -29,7 +29,14 @@ def time_between_deploys(from, to)
   end
 end
 
+def safe_name(name)
+  name.chomp.split(%r{/}).last
+end
+
 def deploy(from, to)
+  from = safe_name(from)
+  to = safe_name(to)
+
   delta = `git describe --match="production*" #{to}~1`.chomp
   revision = `git rev-parse --short #{to}`.chomp
 
@@ -66,4 +73,4 @@ deploys.each_cons(2) do |(from, to)|
   deploy(from, to)
 end
 
-#deploy("origin/production", "origin/staging")
+# deploy("production", "staging")
