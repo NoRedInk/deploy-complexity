@@ -3,7 +3,7 @@
 require 'time'
 
 def parse_when(tag)
-  if m = tag.match(/-(\d{4}-\d{2}-\d{2}-\d{2}\d{2})/)
+  tag.match(/-(\d{4}-\d{2}-\d{2}-\d{2}\d{2})/) do |m|
     Time.strptime(m[1], '%Y-%m-%d-%H%M')
   end
 end
@@ -60,16 +60,14 @@ def deploy(from, to)
 
   shortstat = `git diff --shortstat --summary #{from}...#{to}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
-    if m = line.match(%r{db/migrate/(.*)$})
+    line.match(%r{db/migrate/(.*)$}) do |m|
       MIGRATE_FORMAT % [to, m[1]]
     end
   end
 
-  prs = merges.map do |line|
-    if m = line.match(/pull request #(\d+) from (.*)$/)
-      m[1].to_i
-    end
-  end.compact
+  prs = merges.map { |line|
+    line.match(/pull request #(\d+) from (.*)$/) { |m| m[1].to_i }
+  }.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
   if commits.count > 0
