@@ -73,17 +73,17 @@ def deploy(from, to)
   if commits.count > 0
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
-    puts shortstat.first
-    puts migrations
+    puts shortstat.first.strip
     puts COMPARE_FORMAT % [from,to]
-    puts prs.map { |x| PR_FORMAT % x }
+    puts "Migrations:", migrations if migrations.any?
+    puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
   else
     puts "redeployed %s %s" % [from, time_delta]
   end
   puts
 end
 
-last_n_deploys = nil
+last_n_deploys = 30
 deploys = `git tag -l | grep production`.split(/\n/).drop(1)
 deploys = deploys.last(1+last_n_deploys) if last_n_deploys
 deploys.each_cons(2) do |(from, to)|
