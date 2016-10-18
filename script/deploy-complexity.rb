@@ -20,7 +20,7 @@ def time_between_deploys(from, to)
     (deploy_time - last_time) / 60**2
   end
 
-  time_delta = if hours.nil?
+  if hours.nil?
     "pending deploy"
   elsif hours < 24
     "after %2.1f %s" % [hours, "hours"]
