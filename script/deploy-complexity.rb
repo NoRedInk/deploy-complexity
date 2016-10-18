@@ -109,7 +109,7 @@ elsif action == "promote"
   deploy("origin/production", "origin/staging")
   deploy("origin/staging", "origin/master")
 else
-  to = ARGV.shift
-  from = ARGV.shift || `git tag -l | grep production`.split(/\n/).last.chomp
+  to = ARGV.pop
+  from = ARGV.pop || `git tag -l | grep production`.split(/\n/).last.chomp
   deploy(from, to)
 end
