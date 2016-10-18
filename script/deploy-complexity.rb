@@ -12,8 +12,7 @@ REPO_URL = "https://github.com/NoRedInk/NoRedInk/"
 PR_FORMAT = REPO_URL + "pull/%d"
 COMPARE_FORMAT= REPO_URL + "compare/%s...%s"
 
-deploys = `git tag -l | grep production`.split(/\n/)
-deploys.drop(1).each_cons(2) do |(from, to)|
+def deploy(from, to)
   delta = `git describe --match="production*" #{to}~1`.chomp
   revision = `git rev-parse --short #{to}`.chomp
 
@@ -47,4 +46,9 @@ deploys.drop(1).each_cons(2) do |(from, to)|
     puts "redeployed %s after %2.1f %s" % [from, *time_delta]
   end
   puts
+end
+
+deploys = `git tag -l | grep production`.split(/\n/)
+deploys.drop(1).each_cons(2) do |(from, to)|
+  deploy(from, to)
 end
