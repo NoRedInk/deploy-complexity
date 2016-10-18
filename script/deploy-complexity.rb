@@ -51,7 +51,7 @@ def deploy(from, to)
 
   puts "Deploy %s [%s]" % [to, revision]
   if commits > 1
-    puts "%d prs, %d merges, %d commits %s" %
+    puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits, time_delta]
     puts COMPARE_FORMAT % [from,to]
     puts prs.map { |x| PR_FORMAT % x }
