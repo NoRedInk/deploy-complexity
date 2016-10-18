@@ -30,19 +30,6 @@ def time_between_deploys(from, to)
   end
 end
 
-def base_tag(from)
-  base = case from
-  when /staging/
-    "staging"
-  when /demo/
-    "demo"
-  else
-    "production"
-  end
-
-  `git describe --match="#{base}*" #{to}~1`.chomp
-end
-
 def safe_name(name)
   name.chomp.split(%r{/}).last
 end
