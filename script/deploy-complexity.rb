@@ -11,6 +11,7 @@ end
 REPO_URL = "https://github.com/NoRedInk/NoRedInk/"
 PR_FORMAT = REPO_URL + "pull/%d"
 COMPARE_FORMAT= REPO_URL + "compare/%s...%s"
+MIGRATE_FORMAT = REPO_URL + "blob/%s/db/migrate/%s"
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -46,7 +47,7 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
-def deploy(from, to)
+def deploy(from, to, base_branch: "production")
   from = safe_name(from)
   to = safe_name(to)
 
@@ -57,7 +58,12 @@ def deploy(from, to)
   commits = `git log --oneline #{from}...#{to}`.split(/\n/)
   merges = commits.grep(/Merge/)
 
-  shortstat = `git diff --shortstat #{from}...#{to}`
+  shortstat = `git diff --shortstat --summary #{from}...#{to}`.split(/\n/)
+  migrations = shortstat.grep(/migrate/).map do |line|
+    if m = line.match(%r{db/migrate/(.*)$})
+      MIGRATE_FORMAT % [base_branch, m[1]]
+    end
+  end
 
   prs = merges.map do |line|
     if m = line.match(/pull request #(\d+) from (.*)$/)
@@ -69,7 +75,8 @@ def deploy(from, to)
   if commits.count > 0
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
-    puts shortstat
+    puts shortstat.first
+    puts migrations
     puts COMPARE_FORMAT % [from,to]
     puts prs.map { |x| PR_FORMAT % x }
   else
