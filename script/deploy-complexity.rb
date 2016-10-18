@@ -48,20 +48,19 @@ def safe_name(name)
 end
 
 def deploy(from, to)
-  from = safe_name(from)
-  to = safe_name(to)
+  range = "#{from}...#{to}"
 
   revision = `git rev-parse --short #{to}`.chomp
 
-  time_delta = time_between_deploys(from, to)
+  time_delta = time_between_deploys(safe_name(from), safe_name(to))
 
-  commits = `git log --oneline #{from}...#{to}`.split(/\n/)
+  commits = `git log --oneline #{range}`.split(/\n/)
   merges = commits.grep(/Merge/)
 
-  shortstat = `git diff --shortstat --summary #{from}...#{to}`.split(/\n/)
+  shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
     line.match(%r{db/migrate/(.*)$}) do |m|
-      MIGRATE_FORMAT % [to, m[1]]
+      MIGRATE_FORMAT % [safe_name(to), m[1]]
     end
   end
 
@@ -76,7 +75,7 @@ def deploy(from, to)
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip
-    puts COMPARE_FORMAT % [from,to]
+    puts COMPARE_FORMAT % [safe_name(from),safe_name(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
     puts "Commits:", commits if prs.size.zero?
@@ -97,9 +96,9 @@ if historical
     deploy(from, to)
   end
 elsif action == "staging"
-  deploy("production", "staging")
+  deploy("origin/production", "origin/staging")
 elsif action == "master"
-  deploy("production", "master")
+  deploy("origin/production", "origin/master")
 elsif action == "promote"
-  deploy("staging", "master")
+  deploy("origin/staging", "origin/master")
 end
