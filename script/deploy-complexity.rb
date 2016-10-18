@@ -70,13 +70,14 @@ def deploy(from, to)
   }.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
-  if commits.count > 0
+  if commits.size > 0
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip
     puts COMPARE_FORMAT % [from,to]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
+    puts "Commits:", commits if prs.size.zero?
   else
     puts "redeployed %s %s" % [from, time_delta]
   end
