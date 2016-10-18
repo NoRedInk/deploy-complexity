@@ -61,7 +61,7 @@ def deploy(from, to)
   if commits.size > 0
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
-    puts shortstat.first.strip
+    puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [safe_name(from),safe_name(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
