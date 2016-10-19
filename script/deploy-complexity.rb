@@ -52,7 +52,10 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
-def deploy(from, to)
+def deploy(from, to, options)
+  dirstat = options[:dirstat]
+  stat = options[:stat]
+
   range = "#{from}...#{to}"
 
   revision = `git rev-parse --short #{to}`.chomp
@@ -69,6 +72,9 @@ def deploy(from, to)
     end
   end
 
+  dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
+  stat = `git diff --stat #{range}` if stat
+
   prs = merges.map { |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
       [m[1].to_i, safe_name(m[2])]
@@ -84,6 +90,8 @@ def deploy(from, to)
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
     puts "Commits:", commits if prs.size.zero?
+    puts "Dirstats:", dirstat if dirstat
+    puts "Stats:", stat if stat
   else
     puts "redeployed %s %s" % [from, time_delta]
   end
@@ -93,6 +101,7 @@ end
 branch = "production"
 last_n_deploys = nil
 action = nil
+options = {}
 
 require 'optparse'
 optparse = OptionParser.new do |opts|
@@ -106,6 +115,8 @@ optparse = OptionParser.new do |opts|
     last_n_deploys = e.to_i
     last_n_deploys = nil if last_n_deploys.zero?
   end
+  opts.on("--dirstat", "Statistics on directory changes") { options[:dirstat] = true }
+  opts.on("--stat", "Statistics on file changes") { options[:stat] = true }
   opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
 end
 
@@ -121,15 +132,15 @@ case action
 when "history"
   deploys = deploys.last(1+last_n_deploys) if last_n_deploys
   deploys.each_cons(2) do |(from, to)|
-    deploy(from, to)
+    deploy(from, to, options)
   end
 when "promote"
-  deploy("origin/production", "origin/staging")
-  deploy("origin/staging", "origin/master")
+  deploy("origin/production", "origin/staging", options)
+  deploy("origin/staging", "origin/master", options)
 when "diff"
   to = ARGV.pop
   from = ARGV.pop || deploys.last.chomp
-  deploy(from, to)
+  deploy(from, to, options)
 else
   abort(optparse.to_s)
 end
