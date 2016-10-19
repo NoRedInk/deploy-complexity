@@ -9,10 +9,14 @@
 # $ script/deploy-complexity.rb
 # Displays code that would be promoted if staging deployed to production, or master
 # was promoted to staging.
-# $ script/deploy-complexity.rb -b -d
-# Displays the last 5 deploys on production
+# $ script/deploy-complexity.rb master
+# Shows the changes between last production deploy and current master
 # $ script/deploy-complexity.rb origin/demo origin/master
 # Displays the changes that would be deployed to demo
+# $ script/deploy-complexity.rb -d 3
+# Displays the last 3 deploys on production
+# $ script/deploy-complexity.rb -b staging -d
+# Show changes from every single staging deploy
 
 require 'time'
 
@@ -86,44 +90,46 @@ def deploy(from, to)
   puts
 end
 
-branch = nil
+branch = "production"
 last_n_deploys = nil
-action = "staging"
+action = nil
 
 require 'optparse'
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: %s [base branch]..[deploy branch]" % [File.basename($PROGRAM_NAME)]
-  opts.on("-b", "--branch-history [BRANCH]", String, "Show historical deploys from branch") do |e|
-    branch = e || "production"
+  opts.banner = "Usage: %s [[base branch] deploy branch]" % [File.basename($PROGRAM_NAME)]
+  opts.on("-b", "--branch BRANCH", String, "Specify the base branch") do |e|
+    branch = safe_name(e) || branch
   end
-  opts.on("-d", "--deploys [N]", Integer, "Only show last N deploys",
-          "Only works with --branch-history") do |e|
+  opts.on("-d", "--deploys [N]", Integer,
+          "Show historical deploys, shows all if N is not specified") do |e|
+    action = "history"
     last_n_deploys = e.to_i
-    last_n_deploys = 5 if last_n_deploys.zero?
+    last_n_deploys = nil if last_n_deploys.zero?
   end
   opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
 end
 
 optparse.parse!(ARGV)
-if ARGV.size == 0
-  action = "promote"
+action ||= if ARGV.size == 0
+  "promote"
 elsif ARGV.size <= 2
-  action = "diff"
-else
-  abort(optparse.to_s)
+  "diff"
 end
 
-if branch
-  deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
+deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
+case action
+when "history"
   deploys = deploys.last(1+last_n_deploys) if last_n_deploys
   deploys.each_cons(2) do |(from, to)|
     deploy(from, to)
   end
-elsif action == "promote"
+when "promote"
   deploy("origin/production", "origin/staging")
   deploy("origin/staging", "origin/master")
-else
+when "diff"
   to = ARGV.pop
-  from = ARGV.pop || `git tag -l | grep production`.split(/\n/).last.chomp
+  from = ARGV.pop || deploys.last.chomp
   deploy(from, to)
+else
+  abort(optparse.to_s)
 end
