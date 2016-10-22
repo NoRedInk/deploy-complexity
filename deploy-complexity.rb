@@ -46,10 +46,12 @@ def time_between_deploys(from, to)
   end
 end
 
+# converts origin/master -> master
 def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
+# converts a branch name like master into the closest tag or commit sha
 def reference(name)
   branch = safe_name(name)
   tag = `git tag --points-at #{name} | grep #{branch}`.chomp
@@ -60,6 +62,7 @@ def reference(name)
   end
 end
 
+# deploys are the delta from base -> to, so to contains commits to add to base
 def deploy(base, to, options)
   dirstat = options[:dirstat]
   stat = options[:stat]
