@@ -83,8 +83,11 @@ def deploy(base, to, options)
       MIGRATE_FORMAT % [safe_name(to), m[1]]
     end
   end
+  # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
+  # TODO: investigate summarizing language / spec content based on file suffix,
+  # and possibly per PR, or classify frontend, backend, spec changes
   stat = `git diff --stat #{range}` if stat
 
   pull_requests = merges.map do |line|
@@ -101,6 +104,7 @@ def deploy(base, to, options)
     puts COMPARE_FORMAT % [reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
     if pull_requests.any?
+      # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
     else
       puts "Commits:", commits
