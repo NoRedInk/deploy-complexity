@@ -50,6 +50,16 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
+def reference(name)
+  branch = safe_name(name)
+  tag = `git tag --points-at #{name} | grep #{branch}`.chomp
+  if tag.empty?
+    `git rev-parse --short #{branch}`.chomp
+  else
+    tag
+  end
+end
+
 def deploy(base, to, options)
   dirstat = options[:dirstat]
   stat = options[:stat]
@@ -84,7 +94,7 @@ def deploy(base, to, options)
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
-    puts COMPARE_FORMAT % [safe_name(base), safe_name(to)]
+    puts COMPARE_FORMAT % [reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
     puts "Commits:", commits if prs.size.zero?
