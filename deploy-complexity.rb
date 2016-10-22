@@ -28,7 +28,7 @@ end
 
 REPO_URL = "https://github.com/NoRedInk/NoRedInk/"
 PR_FORMAT = REPO_URL + "pull/%d - %s"
-COMPARE_FORMAT= REPO_URL + "compare/%s...%s"
+COMPARE_FORMAT = REPO_URL + "compare/%s...%s"
 MIGRATE_FORMAT = REPO_URL + "blob/%s/db/migrate/%s"
 
 def time_between_deploys(from, to)
@@ -82,11 +82,11 @@ def deploy(from, to, options)
   }.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
-  if commits.size > 0
+  if !commits.empty?
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
-    puts COMPARE_FORMAT % [safe_name(from),safe_name(to)]
+    puts COMPARE_FORMAT % [safe_name(from), safe_name(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
     puts "Commits:", commits if prs.size.zero?
