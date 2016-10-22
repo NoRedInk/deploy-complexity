@@ -84,21 +84,24 @@ def deploy(base, to, options)
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   stat = `git diff --stat #{range}` if stat
 
-  prs = merges.map do |line|
+  pull_requests = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
-      [m[1].to_i, safe_name(m[2])]
+      PR_FORMAT % [m[1].to_i, safe_name(m[2])]
     end
   end.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
   if !commits.empty?
-    puts "%d prs of %d merges, %d commits %s" %
-         [prs.count, merges.count, commits.count, time_delta]
+    puts "%d pull requests of %d merges, %d commits %s" %
+         [pull_requests.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
-    puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
-    puts "Commits:", commits if prs.size.zero?
+    if pull_requests.any?
+      puts "Pull Requests:", pull_requests
+    else
+      puts "Commits:", commits
+    end
     puts "Dirstats:", dirstat if dirstat
     puts "Stats:", stat if stat
   else
