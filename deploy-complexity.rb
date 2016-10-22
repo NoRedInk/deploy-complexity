@@ -66,7 +66,8 @@ def deploy(base, to, options)
 
   range = "#{base}...#{to}"
 
-  revision = `git rev-parse --short #{to}`.chomp
+  # tag_revision = `git rev-parse --short #{to}`.chomp
+  revision = `git rev-list --abbrev-commit -n1 #{to}`.chomp
 
   time_delta = time_between_deploys(safe_name(base), safe_name(to))
 
