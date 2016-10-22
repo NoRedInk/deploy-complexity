@@ -35,16 +35,14 @@ def time_between_deploys(from, to)
   deploy_time = parse_when(to)
   last_time = parse_when(from)
 
-  hours = if deploy_time
-    (deploy_time - last_time) / 60**2
-  end
+  hours = deploy_time && (deploy_time - last_time) / 60**2
 
   if hours.nil?
     "pending deploy"
   elsif hours < 24
     "after %2.1f %s" % [hours, "hours"]
   else
-    "after %2.1f %s" % [(hours/24), "days"]
+    "after %2.1f %s" % [(hours / 24), "days"]
   end
 end
 
@@ -75,11 +73,11 @@ def deploy(base, to, options)
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   stat = `git diff --stat #{range}` if stat
 
-  prs = merges.map { |line|
+  prs = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
       [m[1].to_i, safe_name(m[2])]
     end
-  }.compact
+  end.compact
 
   puts "Deploy tag %s [%s]" % [to, revision]
   if !commits.empty?
@@ -105,7 +103,8 @@ options = {}
 
 require 'optparse'
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: %s [[base branch] deploy branch]" % [File.basename($PROGRAM_NAME)]
+  opts.banner =
+    "Usage: %s [[base branch] deploy branch]" % [File.basename($PROGRAM_NAME)]
   opts.on("-b", "--branch BRANCH", String, "Specify the base branch") do |e|
     branch = safe_name(e) || branch
   end
@@ -115,8 +114,10 @@ optparse = OptionParser.new do |opts|
     last_n_deploys = e.to_i
     last_n_deploys = nil if last_n_deploys.zero?
   end
-  opts.on("--dirstat", "Statistics on directory changes") { options[:dirstat] = true }
-  opts.on("--stat", "Statistics on file changes") { options[:stat] = true }
+  opts.on("--dirstat",
+          "Statistics on directory changes") { options[:dirstat] = true }
+  opts.on("--stat",
+          "Statistics on file changes") { options[:stat] = true }
   opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
 end
 

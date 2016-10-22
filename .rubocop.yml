@@ -1,0 +1,24 @@
+AllCops:
+  TargetRubyVersion: 2.2
+
+# not sure if mandatory spacing is important
+Style/SpaceInsideBlockBraces:
+  Enabled: false
+Style/SpaceInsideBrackets:
+  Enabled: false
+Style/SpaceInsideHashLiteralBraces:
+  Enabled: false
+Style/SpaceInsideParens:
+  Enabled: false
+
+# caring about '' or "" seems overly pedantic
+Style/StringLiterals:
+  Enabled: false
+
+# caring about formalizing names of single line block params is dumb
+Style/SingleLineBlockParams:
+  Enabled: false
+
+# mandated sprintf, format over String#%
+Style/FormatString:
+  Enabled: false
