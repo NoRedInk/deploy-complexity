@@ -6,16 +6,16 @@
 #
 # Examples:
 #
-# $ script/deploy-complexity.rb
+# $ deploy-complexity.rb
 # Displays code that would be promoted if staging deployed to production, or master
 # was promoted to staging.
-# $ script/deploy-complexity.rb master
+# $ deploy-complexity.rb master
 # Shows the changes between last production deploy and current master
-# $ script/deploy-complexity.rb origin/demo origin/master
+# $ deploy-complexity.rb origin/demo origin/master
 # Displays the changes that would be deployed to demo
-# $ script/deploy-complexity.rb -d 3
+# $ deploy-complexity.rb -d 3
 # Displays the last 3 deploys on production
-# $ script/deploy-complexity.rb -b staging -d
+# $ deploy-complexity.rb -b staging -d
 # Show changes from every single staging deploy
 
 require 'time'
