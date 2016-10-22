@@ -52,15 +52,15 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
-def deploy(from, to, options)
+def deploy(base, to, options)
   dirstat = options[:dirstat]
   stat = options[:stat]
 
-  range = "#{from}...#{to}"
+  range = "#{base}...#{to}"
 
   revision = `git rev-parse --short #{to}`.chomp
 
-  time_delta = time_between_deploys(safe_name(from), safe_name(to))
+  time_delta = time_between_deploys(safe_name(base), safe_name(to))
 
   commits = `git log --oneline #{range}`.split(/\n/)
   merges = commits.grep(/Merge/)
@@ -86,14 +86,14 @@ def deploy(from, to, options)
     puts "%d prs of %d merges, %d commits %s" %
          [prs.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
-    puts COMPARE_FORMAT % [safe_name(from), safe_name(to)]
+    puts COMPARE_FORMAT % [safe_name(base), safe_name(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Pull Requests:", prs.map { |x| PR_FORMAT % x } if prs.any?
     puts "Commits:", commits if prs.size.zero?
     puts "Dirstats:", dirstat if dirstat
     puts "Stats:", stat if stat
   else
-    puts "redeployed %s %s" % [from, time_delta]
+    puts "redeployed %s %s" % [base, time_delta]
   end
   puts
 end
@@ -131,16 +131,16 @@ deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
 case action
 when "history"
   deploys = deploys.last(1+last_n_deploys) if last_n_deploys
-  deploys.each_cons(2) do |(from, to)|
-    deploy(from, to, options)
+  deploys.each_cons(2) do |(base, to)|
+    deploy(base, to, options)
   end
 when "promote"
   deploy("origin/production", "origin/staging", options)
   deploy("origin/staging", "origin/master", options)
 when "diff"
   to = ARGV.pop
-  from = ARGV.pop || deploys.last.chomp
-  deploy(from, to, options)
+  base = ARGV.pop || deploys.last.chomp
+  deploy(base, to, options)
 else
   abort(optparse.to_s)
 end
