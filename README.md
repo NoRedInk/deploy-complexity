@@ -1,5 +1,9 @@
 # deploy-complexity
-Analyze the history and complexity of each deploy
+Analyze the history and complexity of upcoming and past deploys.
+
+Summarize deploys with statistics like number of PR's, commits, and line changes
+as well direct links to the github diff for the deploy, links to migrations, and
+individual PRs.
 
 ## Examples
 ```
