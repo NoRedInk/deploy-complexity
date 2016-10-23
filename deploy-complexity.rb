@@ -27,10 +27,9 @@ def parse_when(tag)
   end
 end
 
-REPO_URL = "https://github.com/NoRedInk/NoRedInk/"
-PR_FORMAT = REPO_URL + "pull/%d - %s"
-COMPARE_FORMAT = REPO_URL + "compare/%s...%s"
-MIGRATE_FORMAT = REPO_URL + "blob/%s/db/migrate/%s"
+PR_FORMAT = "%s/pull/%d - %s"
+COMPARE_FORMAT = "%s/compare/%s...%s"
+MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -65,6 +64,7 @@ end
 
 # deploys are the delta from base -> to, so to contains commits to add to base
 def deploy(base, to, options)
+  gh_url = options[:gh_url]
   dirstat = options[:dirstat]
   stat = options[:stat]
 
@@ -81,7 +81,7 @@ def deploy(base, to, options)
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
     line.match(%r{db/migrate/(.*)$}) do |m|
-      MIGRATE_FORMAT % [safe_name(to), m[1]]
+      MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
     end
   end
   # TODO: scan for changes to app/jobs and report changes to params
@@ -93,7 +93,7 @@ def deploy(base, to, options)
 
   pull_requests = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
-      PR_FORMAT % [m[1].to_i, safe_name(m[2])]
+      PR_FORMAT % [gh_url, m[1].to_i, safe_name(m[2])]
     end
   end.compact
 
@@ -102,7 +102,7 @@ def deploy(base, to, options)
     puts "%d pull requests of %d merges, %d commits %s" %
          [pull_requests.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
-    puts COMPARE_FORMAT % [reference(base), reference(to)]
+    puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
@@ -140,6 +140,10 @@ optparse = OptionParser.new do |opts|
           "Statistics on directory changes") { options[:dirstat] = true }
   opts.on("--stat",
           "Statistics on file changes") { options[:stat] = true }
+  opts.on("--gh-url URL", String,
+          "Github project url to construct links from") do |url|
+    options[:gh_url] = url
+  end
   opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
 end
 
@@ -149,6 +153,9 @@ action ||= if ARGV.size == 0
 elsif ARGV.size <= 2
   "diff"
 end
+
+options[:gh_url] ||=
+  "https://github.com/" + `git config --get remote.origin.url`[/:(.+).git/, 1]
 
 deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
 case action
