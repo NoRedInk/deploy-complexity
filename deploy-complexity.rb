@@ -20,6 +20,7 @@
 
 require 'time'
 
+# tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
   tag.match(/-(\d{4}-\d{2}-\d{2}-\d{2}\d{2})/) do |m|
     Time.strptime(m[1], '%Y-%m-%d-%H%M')
