@@ -140,6 +140,10 @@ optparse = OptionParser.new do |opts|
           "Statistics on directory changes") { options[:dirstat] = true }
   opts.on("--stat",
           "Statistics on file changes") { options[:stat] = true }
+  opts.on("--git-dir DIR", String,
+          "Project directory to run git commands from") do |dir|
+    Dir.chdir(dir)
+  end
   opts.on("--gh-url URL", String,
           "Github project url to construct links from") do |url|
     options[:gh_url] = url
