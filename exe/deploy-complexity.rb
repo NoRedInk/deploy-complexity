@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'time'
+require 'bundler/setup'
+require 'deploy_complexity/version'
 
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
@@ -132,7 +134,15 @@ optparse = OptionParser.new do |opts|
           "Github project url to construct links from") do |url|
     options[:gh_url] = url
   end
-  opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
+  opts.on_tail("-v", "--version", "Show version info and exit") do
+    abort <<EOF
+deploy-complexity.rb #{DeployComplexity::VERSION}
+Copyright (C) 2016 NoRedInk (MIT License)
+EOF
+  end
+  opts.on_tail("-h", "--help", "Show this help message and exit") do
+    abort(opts.to_s)
+  end
 end
 
 optparse.parse!(ARGV)
