@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'time'
+require 'bundler/setup'
+require 'deploy_complexity/version'
 
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
@@ -9,7 +11,7 @@ def parse_when(tag)
   end
 end
 
-PR_FORMAT = "%s/pull/%d - %s"
+PR_FORMAT = "%s/pull/%d %1s %s"
 COMPARE_FORMAT = "%s/compare/%s...%s"
 MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
 
@@ -58,7 +60,7 @@ def deploy(base, to, options)
   time_delta = time_between_deploys(safe_name(base), safe_name(to))
 
   commits = `git log --oneline #{range}`.split(/\n/)
-  merges = commits.grep(/Merge/)
+  merges = commits.grep(/Merges|\#\d+/)
 
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
@@ -75,7 +77,9 @@ def deploy(base, to, options)
 
   pull_requests = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
-      PR_FORMAT % [gh_url, m[1].to_i, safe_name(m[2])]
+      PR_FORMAT % [gh_url, m[1].to_i, "-", safe_name(m[2])]
+    end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
+      PR_FORMAT % [gh_url, m[3].to_i, "S", m[2]] # squash merge
     end
   end.compact
 
@@ -130,7 +134,15 @@ optparse = OptionParser.new do |opts|
           "Github project url to construct links from") do |url|
     options[:gh_url] = url
   end
-  opts.on_tail("-h", "--help", "Show this message") { abort(opts.to_s) }
+  opts.on_tail("-v", "--version", "Show version info and exit") do
+    abort <<EOF
+deploy-complexity.rb #{DeployComplexity::VERSION}
+Copyright (C) 2016 NoRedInk (MIT License)
+EOF
+  end
+  opts.on_tail("-h", "--help", "Show this help message and exit") do
+    abort(opts.to_s)
+  end
 end
 
 optparse.parse!(ARGV)
