@@ -55,15 +55,31 @@ def get_modification_type(line)
   GIT_STATUSES.fetch(letter, :unknown)
 end
 
-def resque_changes_from_namestat(base, to, gh_url, namestat)
-  namestat.grep(%r{app/jobs}).map do |line|
+def changes_from_namestat(base, to, gh_url, namestat, path_fragment, formatter)
+  namestat.grep(/#{path_fragment}/).map do |line|
     type = get_modification_type(line)
-    line.match(%r{app/jobs/(\S*).*$}) do |m|
+    line.match(/#{path_fragment}(.*)$/) do |m|
       case type
       when :deleted
-        "Deleted: Link to pre-deploy -> " + (RESQUE_FORMAT % [gh_url, safe_name(base), m[1]])
+        "Deleted: Link to pre-deploy -> " + (formatter % [gh_url, safe_name(base), m[1]])
       when :added, :modified, :copied, :changed, :renamed
-        "#{type.capitalize}: Link to post-deploy -> " + RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
+        "#{type.capitalize}: " + formatter % [gh_url, safe_name(to), m[1]]
+      else
+        raise "Unexpected line in diff: #{line}"
+      end
+    end
+  end
+end
+
+def migration_changes_from_namestat(base, to, gh_url, namestat)
+  namestat.grep(/migrate/).map do |line|
+    type = get_modification_type(line)
+    line.match(%r{db/migrate/(.*)$}) do |m|
+      case type
+      when :deleted
+        "Deleted: Link to pre-deploy -> " + (MIGRATE_FORMAT % [gh_url, safe_name(base), m[1]])
+      when :added, :modified, :copied, :changed, :renamed
+        "#{type.capitalize}: " + MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
       else
         raise "Unexpected line in diff: #{line}"
       end
@@ -98,20 +114,15 @@ def deploy(base, to, options)
   commits = `git log --oneline #{range}`.split(/\n/)
   merges = commits.grep(/Merges|\#\d+/)
 
-  namestat = `git diff --name-status #{range}`.split(/\n/)
-
-  shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
-  migrations = shortstat.grep(/migrate/).map do |line|
-    line.match(%r{db/migrate/(.*)$}) do |m|
-      MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
-    end
-  end
-
-  stat = `git diff --stat #{range}`
-  stat_lines = stat.split(/\n/)
-  resque_changes = resque_changes_from_namestat(base, to, gh_url, namestat)
-
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
+  namestat_lines = `git diff --name-status #{range}`.split(/\n/)
+  shortstat_lines = `git diff --shortstat --summary #{range}`.split(/\n/)
+  stat = `git diff --stat #{range}` if show_stat
+
+  migrations = changes_from_namestat(base, to, gh_url, namestat_lines, "db/migrate/", MIGRATE_FORMAT)
+
+  resque_changes = changes_from_namestat(base, to, gh_url, namestat_lines, "app/jobs/", RESQUE_FORMAT)
+
   # TODO: investigate summarizing language / spec content based on file suffix,
   # and possibly per PR, or classify frontend, backend, spec changes
 
@@ -127,7 +138,7 @@ def deploy(base, to, options)
   if !commits.empty?
     puts "%d pull requests of %d merges, %d commits %s" %
          [pull_requests.count, merges.count, commits.count, time_delta]
-    puts shortstat.first.strip unless shortstat.empty?
+    puts shortstat_lines.first.strip unless shortstat_lines.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Resque Changes:", resque_changes if resque_changes.any?
