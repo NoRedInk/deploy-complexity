@@ -36,19 +36,39 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
-ADDED = "A"
-COPIED = "C"
-DELETED = "D"
-MODIFIED = "M"
-RENAMED = "R"
-CHANGED = "T"
-UNMERGED = "U"
-UNKNOWN = "X"
-BROKEN = "B"
+GIT_STATUSES = {
+  "A" => :added,
+  "C" => :copied,
+  "D" => :deleted,
+  "M" => :modified,
+  "R" => :renamed,
+  "T" => :changed,
+  "U" => :unmerged,
+  "X" => :unknown,
+  "B" => :broken
+}
 # Deduces the status of a file change from its line of the diff
 # e.g. "M       exe/deploy-complexity.rb" -> MODIFIED
 def get_modification_type(line)
-  line.match(/^([ACDMRTUXB])/)[1] || UNKNOWN
+  statuses = GIT_STATUSES.keys.join
+  letter = line.match(/^([#{statuses}])/)[1]
+  GIT_STATUSES.fetch(letter, :unknown)
+end
+
+def resque_changes_from_namestat(base, to, gh_url, namestat)
+  namestat.grep(%r{app/jobs}).map do |line|
+    type = get_modification_type(line)
+    line.match(%r{app/jobs/(\S*).*$}) do |m|
+      case type
+      when :deleted
+        "Deleted: Link to pre-deploy -> " + (RESQUE_FORMAT % [gh_url, safe_name(base), m[1]])
+      when :added, :modified, :copied, :changed, :renamed
+        "#{type.capitalize}: Link to post-deploy -> " + RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
+      else
+        raise "Unexpected line in diff: #{line}"
+      end
+    end
+  end
 end
 
 # converts a branch name like master into the closest tag or commit sha
@@ -89,19 +109,7 @@ def deploy(base, to, options)
 
   stat = `git diff --stat #{range}`
   stat_lines = stat.split(/\n/)
-  resque_changes = namestat.grep(%r{app/jobs}).map do |line|
-    type = get_modification_type(line)
-    line.match(%r{app/jobs/(\S*).*$}) do |m|
-      case type
-      when DELETED
-        "Deleted: Link to pre-deploy -> " + (RESQUE_FORMAT % [gh_url, safe_name(base), m[1]])
-      when ADDED, MODIFIED, COPIED, CHANGED, RENAMED
-        "Link to post-deploy -> " + RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
-      else
-        raise "Unexpected line in diff: #{line}"
-      end
-    end
-  end
+  resque_changes = resque_changes_from_namestat(base, to, gh_url, namestat)
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
