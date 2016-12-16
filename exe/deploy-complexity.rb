@@ -50,7 +50,7 @@ end
 def deploy(base, to, options)
   gh_url = options[:gh_url]
   dirstat = options[:dirstat]
-  stat = options[:stat]
+  show_stat = options[:stat]
 
   range = "#{base}...#{to}"
 
@@ -69,11 +69,11 @@ def deploy(base, to, options)
     end
   end
   # TODO: scan for changes to app/jobs and report changes to params
+  stat = `git diff --stat #{range}`
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
   # and possibly per PR, or classify frontend, backend, spec changes
-  stat = `git diff --stat #{range}` if stat
 
   pull_requests = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
@@ -97,7 +97,7 @@ def deploy(base, to, options)
       puts "Commits:", commits
     end
     puts "Dirstats:", dirstat if dirstat
-    puts "Stats:", stat if stat
+    puts "Stats:", stat if show_stat
   else
     puts "redeployed %s %s" % [base, time_delta]
   end
