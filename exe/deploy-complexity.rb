@@ -36,6 +36,21 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
+ADDED = "A"
+COPIED = "C"
+DELETED = "D"
+MODIFIED = "M"
+RENAMED = "R"
+CHANGED = "T"
+UNMERGED = "U"
+UNKNOWN = "X"
+BROKEN = "B"
+# Deduces the status of a file change from its line of the diff
+# e.g. "M       exe/deploy-complexity.rb" -> MODIFIED
+def get_modification_type(line)
+  line.match(/^([ACDMRTUXB])/)[1] || UNKNOWN
+end
+
 # converts a branch name like master into the closest tag or commit sha
 def reference(name)
   branch = safe_name(name)
@@ -63,6 +78,8 @@ def deploy(base, to, options)
   commits = `git log --oneline #{range}`.split(/\n/)
   merges = commits.grep(/Merges|\#\d+/)
 
+  namestat = `git diff --name-status #{range}`.split(/\n/)
+
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   migrations = shortstat.grep(/migrate/).map do |line|
     line.match(%r{db/migrate/(.*)$}) do |m|
@@ -72,9 +89,17 @@ def deploy(base, to, options)
 
   stat = `git diff --stat #{range}`
   stat_lines = stat.split(/\n/)
-  resque_changes = stat_lines.grep(%r{app/jobs}).map do |line|
+  resque_changes = namestat.grep(%r{app/jobs}).map do |line|
+    type = get_modification_type(line)
     line.match(%r{app/jobs/(\S*).*$}) do |m|
-      RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
+      case type
+      when DELETED
+        "Deleted: Link to pre-deploy -> " + (RESQUE_FORMAT % [gh_url, safe_name(base), m[1]])
+      when ADDED, MODIFIED, COPIED, CHANGED, RENAMED
+        "Link to post-deploy -> " + RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
+      else
+        raise "Unexpected line in diff: #{line}"
+      end
     end
   end
 
