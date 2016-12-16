@@ -14,6 +14,7 @@ end
 PR_FORMAT = "%s/pull/%d %1s %s"
 COMPARE_FORMAT = "%s/compare/%s...%s"
 MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
+RESQUE_FORMAT = "%s/blob/%s/app/jobs/%s"
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -68,8 +69,14 @@ def deploy(base, to, options)
       MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
     end
   end
-  # TODO: scan for changes to app/jobs and report changes to params
+
   stat = `git diff --stat #{range}`
+  stat_lines = stat.split(/\n/)
+  resque_changes = stat_lines.grep(%r{app/jobs}).map do |line|
+    line.match(%r{app/jobs/(\S*).*$}) do |m|
+      RESQUE_FORMAT % [gh_url, safe_name(to), m[1]]
+    end
+  end
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
@@ -90,6 +97,7 @@ def deploy(base, to, options)
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
+    puts "Resque Changes:", resque_changes if resque_changes.any?
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
