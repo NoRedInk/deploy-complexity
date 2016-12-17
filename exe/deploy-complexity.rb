@@ -14,8 +14,17 @@ end
 
 PR_FORMAT = "> %s/pull/%d %1s %s"
 COMPARE_FORMAT = "> %s/compare/%s...%s"
-MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
-RESQUE_FORMAT = "%s/blob/%s/app/jobs/%s"
+GITHUB_FORMAT = "%s/blob/%s/%s"
+
+DEPENDENCY_FILES = [
+  "Gemfile",
+  "Gemfile",
+  "elm-package.json",
+  "package.json",
+  "requirements.txt",
+  "bower.json",
+  "elm-native-package.json"
+]
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -67,24 +76,25 @@ def random_color
   ColorizedString.colors.sample
 end
 
-def changes_from_namestat(base, to, gh_url, namestat, path_fragment, formatter)
+def changes_from_namestat(base, to, gh_url, namestat, path_fragment)
   namestat.grep(/#{path_fragment}/).map do |line|
     type = get_modification_type(line)
-    line.match(/#{path_fragment}(.*)$/) do |m|
+    puts line
+    line.match(/^\S\s*(\S*(#{path_fragment}).*)$/) do |m|
       case type
       when :deleted
         "☠️  "  +
         ColorizedString["Deleted: "].red +
         " Link to pre-deploy -> " +
-        (formatter % [gh_url, safe_name(base), m[1]])
+        (GITHUB_FORMAT % [gh_url, safe_name(base), m[1]])
       when :added
         "👶  " +
         ColorizedString["#{type.capitalize}: "].green +
-        formatter % [gh_url, safe_name(to), m[1]]
+        GITHUB_FORMAT % [gh_url, safe_name(to), m[1]]
       when :modified, :copied, :changed, :renamed
         "🐒  " +
         ColorizedString["#{type.capitalize}: "].blue +
-        formatter % [gh_url, safe_name(to), m[1]]
+        GITHUB_FORMAT % [gh_url, safe_name(to), m[1]]
       else
         raise "Unexpected line in diff: #{line}"
       end
@@ -124,10 +134,11 @@ def deploy(base, to, options)
   shortstat_lines = `git diff --shortstat --summary #{range}`.split(/\n/)
   stat = `git diff --stat #{range}` if show_stat
 
-  migrations = changes_from_namestat(base, to, gh_url, namestat_lines, "db/migrate/", MIGRATE_FORMAT)
+  migrations = changes_from_namestat(base, to, gh_url, namestat_lines, "db/migrate/")
 
-  resque_changes = changes_from_namestat(base, to, gh_url, namestat_lines, "app/jobs/", RESQUE_FORMAT)
+  resque_changes = changes_from_namestat(base, to, gh_url, namestat_lines, "app/jobs/")
 
+  dependency_changes = changes_from_namestat(base, to, gh_url, namestat_lines, DEPENDENCY_FILES.join("|"))
   # TODO: investigate summarizing language / spec content based on file suffix,
   # and possibly per PR, or classify frontend, backend, spec changes
 
@@ -153,6 +164,7 @@ def deploy(base, to, options)
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     print_section "Migrations:", migrations
     print_section "Resque Changes:", resque_changes
+    print_section "Changed Dependencies:", dependency_changes
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts
