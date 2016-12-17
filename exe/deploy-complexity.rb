@@ -3,6 +3,7 @@
 require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
+require 'colorized_string'
 
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
@@ -11,8 +12,8 @@ def parse_when(tag)
   end
 end
 
-PR_FORMAT = "%s/pull/%d %1s %s"
-COMPARE_FORMAT = "%s/compare/%s...%s"
+PR_FORMAT = "> %s/pull/%d %1s %s"
+COMPARE_FORMAT = "> %s/compare/%s...%s"
 MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
 RESQUE_FORMAT = "%s/blob/%s/app/jobs/%s"
 
@@ -36,6 +37,13 @@ def safe_name(name)
   name.chomp.split(%r{/}).last
 end
 
+def print_section(title, items)
+  if items.any?
+    puts
+    puts title, items
+  end
+end
+
 GIT_STATUSES = {
   "A" => :added,
   "C" => :copied,
@@ -55,31 +63,28 @@ def get_modification_type(line)
   GIT_STATUSES.fetch(letter, :unknown)
 end
 
+def random_color
+  ColorizedString.colors.sample
+end
+
 def changes_from_namestat(base, to, gh_url, namestat, path_fragment, formatter)
   namestat.grep(/#{path_fragment}/).map do |line|
     type = get_modification_type(line)
     line.match(/#{path_fragment}(.*)$/) do |m|
       case type
       when :deleted
-        "Deleted: Link to pre-deploy -> " + (formatter % [gh_url, safe_name(base), m[1]])
-      when :added, :modified, :copied, :changed, :renamed
-        "#{type.capitalize}: " + formatter % [gh_url, safe_name(to), m[1]]
-      else
-        raise "Unexpected line in diff: #{line}"
-      end
-    end
-  end
-end
-
-def migration_changes_from_namestat(base, to, gh_url, namestat)
-  namestat.grep(/migrate/).map do |line|
-    type = get_modification_type(line)
-    line.match(%r{db/migrate/(.*)$}) do |m|
-      case type
-      when :deleted
-        "Deleted: Link to pre-deploy -> " + (MIGRATE_FORMAT % [gh_url, safe_name(base), m[1]])
-      when :added, :modified, :copied, :changed, :renamed
-        "#{type.capitalize}: " + MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
+        "☠️  "  +
+        ColorizedString["Deleted: "].red +
+        " Link to pre-deploy -> " +
+        (formatter % [gh_url, safe_name(base), m[1]])
+      when :added
+        "👶  " +
+        ColorizedString["#{type.capitalize}: "].green +
+        formatter % [gh_url, safe_name(to), m[1]]
+      when :modified, :copied, :changed, :renamed
+        "🐒  " +
+        ColorizedString["#{type.capitalize}: "].blue +
+        formatter % [gh_url, safe_name(to), m[1]]
       else
         raise "Unexpected line in diff: #{line}"
       end
@@ -134,17 +139,25 @@ def deploy(base, to, options)
     end
   end.compact
 
-  puts "Deploy tag %s [%s]" % [to, revision]
+  title = "Deploy tag %s [%s]" % [to, revision]
+  puts title
+  puts ColorizedString[" " * title.length].colorize(background: random_color), "\n"
+
   if !commits.empty?
-    puts "%d pull requests of %d merges, %d commits %s" %
+    puts "Summary:"
+    puts "> %d pull requests of %d merges, %d commits %s" %
          [pull_requests.count, merges.count, commits.count, time_delta]
-    puts shortstat_lines.first.strip unless shortstat_lines.empty?
+    puts "> " + shortstat_lines.first.strip unless shortstat_lines.empty?
+    puts
+    puts "Compare:"
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
-    puts "Migrations:", migrations if migrations.any?
-    puts "Resque Changes:", resque_changes if resque_changes.any?
+    print_section "Migrations:", migrations
+    print_section "Resque Changes:", resque_changes
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
-      puts "Pull Requests:", pull_requests
+      puts
+      puts "Pull Requests:"
+      puts pull_requests
     else
       puts "Commits:", commits
     end
@@ -153,7 +166,7 @@ def deploy(base, to, options)
   else
     puts "redeployed %s %s" % [base, time_delta]
   end
-  puts
+  puts "\n" * 3
 end
 
 branch = "production"
