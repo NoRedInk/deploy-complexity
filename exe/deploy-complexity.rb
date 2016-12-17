@@ -1,20 +1,15 @@
 #!/usr/bin/env ruby
 
-require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
-require 'colorized_string'
+require 'helpers'
+require 'formatters'
 
-# tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
-def parse_when(tag)
-  tag.match(/-(\d{4}-\d{2}-\d{2}-\d{2}\d{2})/) do |m|
-    Time.strptime(m[1], '%Y-%m-%d-%H%M')
-  end
-end
+include Helpers
+include Formatters
 
 PR_FORMAT = "> %s/pull/%d %1s %s"
 COMPARE_FORMAT = "> %s/compare/%s...%s"
-GITHUB_FORMAT = "%s/blob/%s/%s"
 
 DEPENDENCY_FILES = [
   "Gemfile",
@@ -26,90 +21,10 @@ DEPENDENCY_FILES = [
   "elm-native-package.json"
 ]
 
-def time_between_deploys(from, to)
-  deploy_time = parse_when(to)
-  last_time = parse_when(from)
-
-  hours = deploy_time && (deploy_time - last_time) / 60**2
-
-  if hours.nil?
-    "pending deploy"
-  elsif hours < 24
-    "after %2.1f %s" % [hours, "hours"]
-  else
-    "after %2.1f %s" % [(hours / 24), "days"]
-  end
-end
-
-# converts origin/master -> master
-def safe_name(name)
-  name.chomp.split(%r{/}).last
-end
-
-def print_section(title, items)
-  if items.any?
-    puts
-    puts title, items
-  end
-end
-
-GIT_STATUSES = {
-  "A" => :added,
-  "C" => :copied,
-  "D" => :deleted,
-  "M" => :modified,
-  "R" => :renamed,
-  "T" => :changed,
-  "U" => :unmerged,
-  "X" => :unknown,
-  "B" => :broken
-}
-# Deduces the status of a file change from its line of the diff
-# e.g. "M       exe/deploy-complexity.rb" -> MODIFIED
-def get_modification_type(line)
-  statuses = GIT_STATUSES.keys.join
-  letter = line.match(/^([#{statuses}])/)[1]
-  GIT_STATUSES.fetch(letter, :unknown)
-end
-
-def random_color
-  ColorizedString.colors.sample
-end
-
 def changes_from_namestat(base, to, gh_url, namestat, path_fragment)
   namestat.grep(/#{path_fragment}/).map do |line|
-    type = get_modification_type(line)
-    puts line
-    line.match(/^\S\s*(\S*(#{path_fragment}).*)$/) do |m|
-      case type
-      when :deleted
-        "☠️  "  +
-        ColorizedString["Deleted: "].red +
-        " Link to pre-deploy -> " +
-        (GITHUB_FORMAT % [gh_url, safe_name(base), m[1]])
-      when :added
-        "👶  " +
-        ColorizedString["#{type.capitalize}: "].green +
-        GITHUB_FORMAT % [gh_url, safe_name(to), m[1]]
-      when :modified, :copied, :changed, :renamed
-        "🐒  " +
-        ColorizedString["#{type.capitalize}: "].blue +
-        GITHUB_FORMAT % [gh_url, safe_name(to), m[1]]
-      else
-        raise "Unexpected line in diff: #{line}"
-      end
-    end
-  end
-end
-
-# converts a branch name like master into the closest tag or commit sha
-def reference(name)
-  branch = safe_name(name)
-  tag = `git tag --points-at #{name} | grep #{branch}`.chomp
-  if tag.empty?
-    `git rev-parse --short #{branch}`.chomp
-  else
-    tag
+    path, type = match_line(path_fragment, line)
+    format_line(base, to, gh_url, type, path) || fail("Unexpected line in diff: #{line}")
   end
 end
 
@@ -134,11 +49,15 @@ def deploy(base, to, options)
   shortstat_lines = `git diff --shortstat --summary #{range}`.split(/\n/)
   stat = `git diff --stat #{range}` if show_stat
 
-  migrations = changes_from_namestat(base, to, gh_url, namestat_lines, "db/migrate/")
+  migrations =
+    changes_from_namestat(base, to, gh_url, namestat_lines, "db/migrate/")
 
-  resque_changes = changes_from_namestat(base, to, gh_url, namestat_lines, "app/jobs/")
+  resque_changes =
+    changes_from_namestat(base, to, gh_url, namestat_lines, "app/jobs/")
 
-  dependency_changes = changes_from_namestat(base, to, gh_url, namestat_lines, DEPENDENCY_FILES.join("|"))
+  dependency_changes =
+    changes_from_namestat(base, to, gh_url, namestat_lines, DEPENDENCY_FILES.join("|"))
+
   # TODO: investigate summarizing language / spec content based on file suffix,
   # and possibly per PR, or classify frontend, backend, spec changes
 
