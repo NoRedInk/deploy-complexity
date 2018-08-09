@@ -39,7 +39,7 @@ OptionParser.new do |opts|
   opts.on(
     "-b", "--branch BRANCH", String,
     "Which branch should we examine?"
-  ) { |branch| options.branch = safe_name(branch) }
+  ) { |branch| options.branch = branch }
 
   opts.on(
     "-t", "--token token", String,
