@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'octokit'
 
 # represent a pull request for the purposes of adding checklist items to it.
