@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'octokit'
 
 # represent a pull request for the purposes of adding checklist items to it.
 class PullRequest
@@ -64,7 +65,7 @@ class PullRequest
   def pr
     @pr ||=
       @client
-      .pull_requests(org_and_repo, head: "NoRedInk:#{@branch}")
+      .pull_requests(org_and_repo, head: "#{@org}:#{@branch}")
       .first
   end
 
