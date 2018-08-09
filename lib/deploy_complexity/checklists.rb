@@ -36,7 +36,7 @@ module Checklists
     end
 
     def relevant_for?(files)
-      files.any? { |file| file.starts_with?("spec/factories") }
+      files.any? { |file| file.start_with?("spec/factories") }
     end
   end
 
@@ -50,7 +50,7 @@ module Checklists
     end
 
     def relevant_for?(files)
-      files.any? { |file| file.starts_with?("ui/tests/") }
+      files.any? { |file| file.start_with?("ui/tests/") }
     end
   end
 
@@ -73,10 +73,10 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     def relevant_for?(files)
       files.any? do |file|
         file == "Capfile" \
-          || file.starts_with?("lib/capistrano/") \
-          || file.starts_with?("lib/deploy/") \
-          || file.starts_with?("config/deploy") \
-          || file.match('.*[\b_\./]cap[\b_\./].*').present?
+          || file.start_with?("lib/capistrano/") \
+          || file.start_with?("lib/deploy/") \
+          || file.start_with?("config/deploy") \
+          || !file.match('.*[\b_\./]cap[\b_\./].*').nil?
       end
     end
   end
@@ -95,10 +95,10 @@ The process for testing capistrano is to deploy the capistrano changes branch to
 
     def relevant_for?(files)
       files.any? do |file|
-        file.starts_with?("config/deploy") \
+        file.start_with?("config/deploy") \
           || file.include?("opsworks") \
-          || file.starts_with?("deploy/") \
-          || file.starts_with?("lib/deploy/")
+          || file.start_with?("deploy/") \
+          || file.start_with?("lib/deploy/")
       end
     end
   end
@@ -127,7 +127,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
 
     def relevant_for?(files)
-      files.any? { |file| file.starts_with? "app/jobs" }
+      files.any? { |file| file.start_with? "app/jobs" }
     end
   end
 
@@ -144,7 +144,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
 
     def relevant_for?(files)
-      files.any? { |file| file.starts_with? "db/migrate/" }
+      files.any? { |file| file.start_with? "db/migrate/" }
     end
   end
 
