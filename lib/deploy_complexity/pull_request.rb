@@ -4,7 +4,7 @@ require 'octokit'
 
 # represent a pull request for the purposes of adding checklist items to it.
 class PullRequest
-  def initialize(branch, token, org = "NoRedInk", repo = "NoRedInk")
+  def initialize(branch, token, org, repo)
     @branch = branch
     @client = Octokit::Client.new(access_token: token)
     @org = org
