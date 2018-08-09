@@ -27,3 +27,7 @@ Use `GIT_DIR` to run a local copy of `pr-checklist` or `deploy-complexity` again
 ```
 GIT_DIR=../repo bundle exec ./exe/pr-checklist.rb -b branch
 ```
+
+### Github Token
+
+pr-checklist.rb requires a github token with role REPO to edit PR descriptions and comment on a PR. Make sure that `GITHUB_TOKEN` is set in the environment.
