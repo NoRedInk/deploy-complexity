@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # define a bunch of checklist items that can be added to PRs automatically
 module Checklists
   # all checklists should inherit from this class. It makes sure that the
