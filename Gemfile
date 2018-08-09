@@ -5,5 +5,8 @@ gemspec
 
 gem 'pry'
 gem 'pry-doc'
-gem 'rspec'
-gem 'rspec-mocks'
+
+group :test do
+  gem 'rspec'
+  gem 'rspec-mocks'
+end
