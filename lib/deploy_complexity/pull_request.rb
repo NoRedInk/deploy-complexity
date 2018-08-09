@@ -78,4 +78,8 @@ class PullRequest
 
     body
   end
+
+  def to_s
+    "https://github.com/#{@org_and_repo}/pulls/#{number}"
+  end
 end
