@@ -19,3 +19,11 @@ Displays the last 3 deploys on production
 $ deploy-complexity.rb -b staging -d
 Show changes from every single staging deploy
 ```
+
+### For Testing
+
+Use `GIT_DIR` to run a local copy of `pr-checklist` or `deploy-complexity` against another repo directory. Otherwise git may report an "Invalid Symmetric Difference Error" because it's referencing local sha's in deploy-complexity, not the target repo.
+
+```
+GIT_DIR=../repo bundle exec ./exe/pr-checklist.rb -b branch
+```
