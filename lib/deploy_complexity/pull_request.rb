@@ -58,7 +58,7 @@ class PullRequest
   end
 
   def number
-    pr.try(:number)
+    pr&.number
   end
 
   private
