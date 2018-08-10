@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'deploy_complexity/pull_request'
 
 describe 'checklists' do
-  # rubocop:disable RSpec/BeforeAfterAll
   # before(:all) do
   #   class TestChecklist < Checklists::Checklist
   #     def checklist
@@ -164,7 +165,7 @@ describe 'checklists' do
   # end
 
   describe 'PullRequest' do
-    let(:prs) { [ Struct.new(:body, :number).new(body, number) ] }
+    let(:prs) { [Struct.new(:body, :number).new(body, number)] }
     let(:body) { "" }
     let(:number) { 42 }
     let(:client) { instance_double(Octokit::Client) }
