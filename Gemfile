@@ -5,6 +5,7 @@ gemspec
 
 gem 'pry'
 gem 'pry-doc'
+gem 'rubocop'
 
 group :test do
   gem 'rspec'
