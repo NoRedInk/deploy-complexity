@@ -1,8 +1,19 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
+
+# ||||||| THIS SCRIPT'S RUBOCOP RAP SHEET |||||||||
+# resolve these if you can, and try not to add more
+#
+# rubocop:disable Style/FormatStringToken
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/PerceivedComplexity
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/BlockLength
 
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
@@ -135,10 +146,10 @@ optparse = OptionParser.new do |opts|
     options[:gh_url] = url
   end
   opts.on_tail("-v", "--version", "Show version info and exit") do
-    abort <<EOF
-deploy-complexity.rb #{DeployComplexity::VERSION}
-Copyright (C) 2016 NoRedInk (MIT License)
-EOF
+    abort <<~BOILERPLATE
+      deploy-complexity.rb #{DeployComplexity::VERSION}
+      Copyright (C) 2016 NoRedInk (MIT License)
+    BOILERPLATE
   end
   opts.on_tail("-h", "--help", "Show this help message and exit") do
     abort(opts.to_s)
@@ -146,11 +157,12 @@ EOF
 end
 
 optparse.parse!(ARGV)
-action ||= if ARGV.size == 0
-  "promote"
-elsif ARGV.size <= 2
-  "diff"
-end
+action ||=
+  if ARGV.size.zero?
+    "promote"
+  elsif ARGV.size <= 2
+    "diff"
+  end
 
 options[:gh_url] ||=
   "https://github.com/" + `git config --get remote.origin.url`[/:(.+).git/, 1]
@@ -158,7 +170,7 @@ options[:gh_url] ||=
 deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
 case action
 when "history"
-  deploys = deploys.last(1+last_n_deploys) if last_n_deploys
+  deploys = deploys.last(1 + last_n_deploys) if last_n_deploys
   deploys.each_cons(2) do |(base, to)|
     deploy(base, to, options)
   end
@@ -172,3 +184,10 @@ when "diff"
 else
   abort(optparse.to_s)
 end
+
+# rubocop:enable Style/FormatStringToken
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/PerceivedComplexity
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/BlockLength
