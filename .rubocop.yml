@@ -2,13 +2,11 @@ AllCops:
   TargetRubyVersion: 2.3
 
 # not sure if mandatory spacing is important
-Style/SpaceInsideBlockBraces:
+Layout/SpaceInsideBlockBraces:
   Enabled: false
-Style/SpaceInsideBrackets:
+Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
-Style/SpaceInsideHashLiteralBraces:
-  Enabled: false
-Style/SpaceInsideParens:
+Layout/SpaceInsideParens:
   Enabled: false
 
 # caring about '' or "" seems overly pedantic
