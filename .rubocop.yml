@@ -24,3 +24,8 @@ Style/FormatString:
 # 120-column lines are fine.
 Metrics/LineLength:
   Max: 120
+
+Metrics/BlockLength:
+  Exclude:
+    # it's fine for rspec tests to have huge blocks. That's the whole API!
+    - 'spec/**/*'
