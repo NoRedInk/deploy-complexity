@@ -16,7 +16,10 @@ describe PullRequest do
     allow(client).to receive(:add_comment)
   end
 
-  subject { PullRequest.new(client, "org", "repo", "branch") }
+  let(:org) { "org" }
+  let(:repo) { "repo" }
+  let(:branch) { "branch" }
+  subject { PullRequest.new(client, org, repo, branch) }
 
   context 'when the branch does not have a PR' do
     let(:prs) { [] }
@@ -27,6 +30,20 @@ describe PullRequest do
 
     it "cannot update with checklists" do
       expect { subject.update_with_checklists([checklist]) }.to_not raise_exception
+    end
+  end
+
+  describe 'string form' do
+    it 'contains the org' do
+      expect(subject.to_s).to include org
+    end
+
+    it 'contains the repo' do
+      expect(subject.to_s).to include repo
+    end
+
+    it 'contains the PR number' do
+      expect(subject.to_s).to include number.to_s
     end
   end
 

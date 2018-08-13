@@ -22,6 +22,10 @@ class PullRequest
     added
   end
 
+  def to_s
+    "https://github.com/#{org_and_repo}/pulls/#{number}"
+  end
+
   private
 
   def append_checklists(checklists)
@@ -85,9 +89,5 @@ class PullRequest
     end
 
     body
-  end
-
-  def to_s
-    "https://github.com/#{@org_and_repo}/pulls/#{number}"
   end
 end
