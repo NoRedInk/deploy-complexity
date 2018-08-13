@@ -15,7 +15,7 @@ describe Checklists do
       end
 
       def relevant_for(files)
-        files
+        files.reject { |f| f == "no" }
       end
     end
   end
@@ -42,6 +42,25 @@ describe Checklists do
 
     it "should not be relevant for an empty list of files" do
       expect(subject.relevant_for([])).to eq []
+    end
+  end
+
+  describe Checklists::Checker do
+    let(:checklists) { [TestChecklist] }
+    let(:checker) { Checklists::Checker.new(checklists) }
+
+    describe 'for_files' do
+      it "has the relevant checklists" do
+        expect(checker.for_files(["foo"])).to include TestChecklist
+      end
+
+      it "does not have any checklists at all for no file" do
+        expect(checker.for_files([])).to eq({})
+      end
+
+      it "does not have irrelevant checklists" do
+        expect(checker.for_files(["no"])).to_not include TestChecklist
+      end
     end
   end
 

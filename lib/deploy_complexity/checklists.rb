@@ -173,6 +173,21 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   # rubocop:enable Style/Documentation
   # rubocop:enable Metrics/LineLength
 
+  # Check for checklists, given a list of checkers
+  class Checker
+    def initialize(checklists)
+      @checklists = checklists
+    end
+
+    def for_files(files)
+      @checklists
+        .map(&:new)
+        .map { |checker| [checker, checker.relevant_for(files)] }
+        .to_h
+        .reject { |_, values| values.empty? }
+    end
+  end
+
   module_function
 
   CHECKLISTS = [
@@ -185,10 +200,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     MigrationChecklist
   ].freeze
 
-  def checklists_for_files(files)
-    CHECKLISTS
-      .map(&:new)
-      .map { |checker| [checker, checker.relevant_for(files)] }
-      .reject { |_, values| values.empty? }
+  def for_files(files)
+    Checker.new(CHECKLISTS).for_files(files)
   end
 end

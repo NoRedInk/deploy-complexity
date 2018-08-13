@@ -68,7 +68,7 @@ end
 puts "Found pull request #{pr}"
 files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
 new_checklists =
-  pr.append_checklists(Checklists.checklists_for_files(files_changed))
+  pr.append_checklists(Checklists.for_files(files_changed))
 
 new_checklists.each do |checklist|
   puts "Added the #{checklist} checklist to this PR."
