@@ -90,6 +90,10 @@ describe Checklists do
         expect(subject).to be_relevant_for(["Capfile"])
       end
 
+      it "should be relevant for the Gemfile" do
+        expect(subject).to be_relevant_for(["Gemfile"])
+      end
+
       it "should be relevant for files under lib/deploy/" do
         expect(subject).to be_relevant_for(["lib/deploy/foobar.rb"])
       end
