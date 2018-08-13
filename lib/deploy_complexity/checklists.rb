@@ -73,6 +73,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     def relevant_for?(files)
       files.any? do |file|
         file == "Capfile" \
+          || file == "Gemfile" \
           || file.start_with?("lib/capistrano/") \
           || file.start_with?("lib/deploy/") \
           || file.start_with?("config/deploy") \
