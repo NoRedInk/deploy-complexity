@@ -175,11 +175,6 @@ The process for testing capistrano is to deploy the capistrano changes branch to
 
   module_function
 
-  def get_files_changed(ref1, ref2)
-    files = `git diff --name-only '#{ref1}...#{ref2}'`
-    files.split("\n")
-  end
-
   CHECKLISTS = [
     RubyFactoriesChecklist,
     ElmFactoriesChecklist,

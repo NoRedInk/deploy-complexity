@@ -66,7 +66,7 @@ unless pr.present?
 end
 
 puts "Found pull request #{pr}"
-files_changed = Checklists.get_files_changed(pr.base, pr.head)
+files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
 new_checklists =
   pr.append_checklists(Checklists.checklists_for_files(files_changed))
 
