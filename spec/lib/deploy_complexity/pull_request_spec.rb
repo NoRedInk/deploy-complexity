@@ -10,53 +10,32 @@ describe PullRequest do
   let(:checklist) { Struct.new(:for_pr_body, :id).new("CHECKLIST", "ID") }
 
   before do
-    expect(Octokit::Client).to receive(:new).and_return(client)
-
     # set up client double
     allow(client).to receive(:pull_requests).and_return(prs)
     allow(client).to receive(:update_issue)
+    allow(client).to receive(:add_comment)
   end
 
-  subject { PullRequest.new("fake-branch-name", "FAKE", "org", "repo") }
+  subject { PullRequest.new(client, "org", "repo", "branch") }
 
-  context 'when the PR is not found' do
+  context 'when the branch does not have a PR' do
     let(:prs) { [] }
 
     it "should not be present" do
       expect(subject).to_not be_present
     end
 
-    it "cannot add comment" do
-      expect { subject.add_comment("some comment") }.to_not raise_exception
-    end
-
-    it "cannot append checklists" do
-      expect { subject.append_checklists([checklist]) }.to_not raise_exception
-    end
-
-    it "cannot add checklist comment" do
-      expect { subject.add_checklist_comment([checklist]) }.to_not raise_exception
-    end
-
-    it "cannot get base" do
-      expect { subject.base }.to_not raise_exception
-    end
-
-    it "cannot get head" do
-      expect { subject.head }.to_not raise_exception
-    end
-
-    it "cannot get number" do
-      expect { subject.number }.to_not raise_exception
+    it "cannot update with checklists" do
+      expect { subject.update_with_checklists([checklist]) }.to_not raise_exception
     end
   end
 
-  describe 'append_checklists' do
+  describe 'update_with_checklists' do
     context "when the checklist isn't present" do
       let(:body) { "" }
 
       it "should add the checklist" do
-        expect(subject.append_checklists([checklist])).to include(checklist)
+        expect(subject.update_with_checklists([checklist])).to include(checklist)
       end
     end
 
@@ -64,7 +43,7 @@ describe PullRequest do
       let(:body) { checklist.id }
 
       it "should not add the checklist again" do
-        expect(subject.append_checklists([checklist])).to eq []
+        expect(subject.update_with_checklists([checklist])).to eq []
       end
     end
   end

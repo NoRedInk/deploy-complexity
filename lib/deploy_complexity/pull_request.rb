@@ -4,21 +4,25 @@ require 'octokit'
 
 # represent a pull request for the purposes of adding checklist items to it.
 class PullRequest
-  def initialize(branch, token, org, repo)
-    @branch = branch
-    @client = Octokit::Client.new(access_token: token)
+  def initialize(client, org, repo, branch)
+    @client = client
     @org = org
     @repo = repo
+    @branch = branch
   end
 
-  def org_and_repo
-    "#{@org}/#{@repo}"
+  def present?
+    !pr.nil?
   end
 
-  def add_comment(comment)
-    return if pr.nil?
-    @client.add_comment(org_and_repo, number, comment)
+  def update_with_checklists(checklists)
+    added = append_checklists(checklists)
+    add_checklist_comment(checklists) if added
+
+    added
   end
+
+  private
 
   def append_checklists(checklists)
     return [] if pr.nil?
@@ -53,21 +57,24 @@ class PullRequest
     pr&.head&.sha
   end
 
-  def present?
-    !pr.nil?
-  end
-
   def number
     pr&.number
   end
-
-  private
 
   def pr
     @pr ||=
       @client
       .pull_requests(org_and_repo, head: "#{@org}:#{@branch}")
       .first
+  end
+
+  def add_comment(comment)
+    return if pr.nil?
+    @client.add_comment(org_and_repo, number, comment)
+  end
+
+  def org_and_repo
+    "#{@org}/#{@repo}"
   end
 
   def body_with_checklist(checklists)
