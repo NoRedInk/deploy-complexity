@@ -161,12 +161,14 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   end
 
   def checklists_for_files(files)
-    [RubyFactoriesChecklist,
-     ElmFactoriesChecklist,
-     CapistranoChecklist,
-     OpsWorksChecklist,
-     RoutesChecklist,
-     ResqueChecklist,
-     MigrationChecklist].map(&:new).select { |checker| checker.relevant_for?(files) }
+    [
+      RubyFactoriesChecklist,
+      ElmFactoriesChecklist,
+      CapistranoChecklist,
+      OpsWorksChecklist,
+      RoutesChecklist,
+      ResqueChecklist,
+      MigrationChecklist
+    ].map(&:new).select { |checker| checker.relevant_for?(files) }
   end
 end
