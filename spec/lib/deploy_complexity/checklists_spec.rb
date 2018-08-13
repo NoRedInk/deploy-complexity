@@ -14,8 +14,8 @@ describe Checklists do
         "CHECKLIST"
       end
 
-      def relevant_for?(_files)
-        false
+      def relevant_for(files)
+        files
       end
     end
   end
@@ -36,12 +36,12 @@ describe Checklists do
       expect(subject.id).to be_a String
     end
 
-    it "should respond to relevant_for?" do
-      expect(subject).to respond_to :relevant_for?
+    it "should respond to relevant_for" do
+      expect(subject).to respond_to :relevant_for
     end
 
-    it "should not trigger for no files" do
-      expect(subject.relevant_for?([])).to be false
+    it "should not be relevant for an empty list of files" do
+      expect(subject.relevant_for([])).to eq []
     end
   end
 
@@ -68,17 +68,21 @@ describe Checklists do
   end
 
   describe 'Checklists' do
+    define :be_relevant_for do |file|
+      match { |actual| actual.relevant_for([file]).member?(file) }
+    end
+
     describe 'RubyFactoriesChecklist' do
       subject { Checklists::RubyFactoriesChecklist.new }
 
       it_behaves_like "a checklist class"
 
       it "should be relevant for ruby factories" do
-        expect(subject).to be_relevant_for(["spec/factories/users.rb"])
+        expect(subject).to be_relevant_for("spec/factories/users.rb")
       end
 
       it "should be relevant for ruby factory tests" do
-        expect(subject).to be_relevant_for(["spec/factories_spec.rb"])
+        expect(subject).to be_relevant_for("spec/factories_spec.rb")
       end
     end
 
@@ -88,7 +92,7 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for elm specs" do
-        expect(subject).to be_relevant_for(["ui/tests/SomeNeatSpec.elm"])
+        expect(subject).to be_relevant_for("ui/tests/SomeNeatSpec.elm")
       end
     end
 
@@ -98,27 +102,27 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for files under lib/capistrano/" do
-        expect(subject).to be_relevant_for(["lib/capistrano/tasks/foobar.rake"])
+        expect(subject).to be_relevant_for("lib/capistrano/tasks/foobar.rake")
       end
 
       it "should be relevant for the Capfile" do
-        expect(subject).to be_relevant_for(["Capfile"])
+        expect(subject).to be_relevant_for("Capfile")
       end
 
       it "should be relevant for the Gemfile" do
-        expect(subject).to be_relevant_for(["Gemfile"])
+        expect(subject).to be_relevant_for("Gemfile")
       end
 
       it "should be relevant for files under lib/deploy/" do
-        expect(subject).to be_relevant_for(["lib/deploy/foobar.rb"])
+        expect(subject).to be_relevant_for("lib/deploy/foobar.rb")
       end
 
       it "should be relevant for files with cap as a word in their name" do
-        expect(subject).to be_relevant_for(["script/a_cap_ital_idea.sh"])
+        expect(subject).to be_relevant_for("script/a_cap_ital_idea.sh")
       end
 
       it "should not be relevant for files with 'cap' as part of another word" do
-        expect(subject).to_not be_relevant_for(["a_capital_idea.rb"])
+        expect(subject).to_not be_relevant_for("a_capital_idea.rb")
       end
     end
 
@@ -128,19 +132,19 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for any file with opsworks in the name" do
-        expect(subject).to be_relevant_for(["script/opsworks-foo.rb"])
+        expect(subject).to be_relevant_for("script/opsworks-foo.rb")
       end
 
       it "should be relevant for config/deploy.rb" do
-        expect(subject).to be_relevant_for(["config/deploy.rb"])
+        expect(subject).to be_relevant_for("config/deploy.rb")
       end
 
       it "should be relevant for files under deploy/" do
-        expect(subject).to be_relevant_for(["deploy/before_migrate.rb"])
+        expect(subject).to be_relevant_for("deploy/before_migrate.rb")
       end
 
       it "should be relevant for files under lib/deploy/" do
-        expect(subject).to be_relevant_for(["lib/deploy/foobar.rb"])
+        expect(subject).to be_relevant_for("lib/deploy/foobar.rb")
       end
     end
 
@@ -150,7 +154,7 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for the routes file" do
-        expect(subject).to be_relevant_for(["config/routes.rb"])
+        expect(subject).to be_relevant_for("config/routes.rb")
       end
     end
 
@@ -160,7 +164,7 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for resque tasks" do
-        expect(subject).to be_relevant_for(["app/jobs/foobar_job.rb"])
+        expect(subject).to be_relevant_for("app/jobs/foobar_job.rb")
       end
     end
 
@@ -170,7 +174,7 @@ describe Checklists do
       it_behaves_like "a checklist class"
 
       it "should be relevant for migrations" do
-        expect(subject).to be_relevant_for(["db/migrate/hey_whats_up.rb"])
+        expect(subject).to be_relevant_for("db/migrate/hey_whats_up.rb")
       end
     end
   end

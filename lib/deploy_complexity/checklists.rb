@@ -43,8 +43,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for?(files)
-      files.any? { |file| file.start_with?("spec/factories") }
+    def relevant_for(files)
+      files.select { |file| file.start_with?("spec/factories") }
     end
   end
 
@@ -59,8 +59,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for?(files)
-      files.any? { |file| file.start_with?("ui/tests/") }
+    def relevant_for(files)
+      files.select { |file| file.start_with?("ui/tests/") }
     end
   end
 
@@ -82,8 +82,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       ".strip
     end
 
-    def relevant_for?(files)
-      files.any? do |file|
+    def relevant_for(files)
+      files.select do |file|
         file == "Capfile" \
           || file == "Gemfile" \
           || file.start_with?("lib/capistrano/") \
@@ -108,8 +108,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       ".strip
     end
 
-    def relevant_for?(files)
-      files.any? do |file|
+    def relevant_for(files)
+      files.select do |file|
         file.start_with?("config/deploy") \
           || file.include?("opsworks") \
           || file.start_with?("deploy/") \
@@ -129,8 +129,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       '.strip
     end
 
-    def relevant_for?(files)
-      files.member? "config/routes.rb"
+    def relevant_for(files)
+      files.select { |file| file == "config/routes.rb" }
     end
   end
 
@@ -145,8 +145,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       '.strip
     end
 
-    def relevant_for?(files)
-      files.any? { |file| file.start_with? "app/jobs" }
+    def relevant_for(files)
+      files.select { |file| file.start_with? "app/jobs" }
     end
   end
 
@@ -164,8 +164,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       '.strip
     end
 
-    def relevant_for?(files)
-      files.any? { |file| file.start_with? "db/migrate/" }
+    def relevant_for(files)
+      files.select { |file| file.start_with? "db/migrate/" }
     end
   end
 
@@ -193,6 +193,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   def checklists_for_files(files)
     CHECKLISTS
       .map(&:new)
-      .select { |checker| checker.relevant_for?(files) }
+      .map { |checker| [checker, checker.relevant_for(files)] }
+      .reject { |_, values| values.empty? }
   end
 end
