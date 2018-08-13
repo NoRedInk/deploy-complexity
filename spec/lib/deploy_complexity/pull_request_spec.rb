@@ -31,6 +31,16 @@ describe PullRequest do
     it "cannot update with checklists" do
       expect { subject.update_with_checklists([checklist]) }.to_not raise_exception
     end
+
+    it "cannot get base" do
+      expect { subject.base }.to_not raise_exception
+      expect(subject.base).to be_nil
+    end
+
+    it "cannot get head" do
+      expect { subject.head }.to_not raise_exception
+      expect(subject.head).to be_nil
+    end
   end
 
   describe 'string form' do

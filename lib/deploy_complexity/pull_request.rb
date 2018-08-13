@@ -26,6 +26,14 @@ class PullRequest
     "https://github.com/#{org_and_repo}/pulls/#{number}"
   end
 
+  def base
+    pr&.base&.sha
+  end
+
+  def head
+    pr&.head&.sha
+  end
+
   private
 
   def append_checklists(checklists)
@@ -52,14 +60,6 @@ class PullRequest
     add_comment(comments)
   end
   # rubocop:enable Metrics/LineLength
-
-  def base
-    pr&.base&.sha
-  end
-
-  def head
-    pr&.head&.sha
-  end
 
   def number
     pr&.number
