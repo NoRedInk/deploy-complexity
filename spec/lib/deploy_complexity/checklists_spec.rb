@@ -14,7 +14,7 @@ describe Checklists do
         "CHECKLIST"
       end
 
-      def relevant_for?(_)
+      def relevant_for?(_files)
         false
       end
     end
