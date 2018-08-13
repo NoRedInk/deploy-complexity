@@ -6,14 +6,49 @@ require 'deploy_complexity/checklists'
 describe Checklists do
   before(:all) do
     class TestChecklist < Checklists::Checklist
+      def human_name
+        "Human Name"
+      end
+
       def checklist
         "CHECKLIST"
       end
+
+      def relevant_for?(_)
+        false
+      end
+    end
+  end
+
+  shared_examples_for 'a checklist class' do
+    it "should give back a string for checklist" do
+      expect(subject).to respond_to :checklist
+      expect(subject.checklist).to be_a String
+    end
+
+    it "should give back a string for id" do
+      expect(subject).to respond_to :id
+      expect(subject.id).to be_a String
+    end
+
+    it "should give back a string for a human_name" do
+      expect(subject).to respond_to :human_name
+      expect(subject.id).to be_a String
+    end
+
+    it "should respond to relevant_for?" do
+      expect(subject).to respond_to :relevant_for?
+    end
+
+    it "should not trigger for no files" do
+      expect(subject.relevant_for?([])).to be false
     end
   end
 
   describe 'Checklist' do
     subject { TestChecklist.new }
+
+    it_behaves_like "a checklist class"
 
     describe "id" do
       it "has the class name" do
@@ -33,26 +68,6 @@ describe Checklists do
   end
 
   describe 'Checklists' do
-    shared_examples_for 'a checklist class' do
-      it "should give back a string for checklist" do
-        expect(subject).to respond_to :checklist
-        expect(subject.checklist).to be_a String
-      end
-
-      it "should give back a string for id" do
-        expect(subject).to respond_to :id
-        expect(subject.id).to be_a String
-      end
-
-      it "should respond to relevant_for?" do
-        expect(subject).to respond_to :relevant_for?
-      end
-
-      it "should not trigger for no files" do
-        expect(subject.relevant_for?([])).to be false
-      end
-    end
-
     describe 'RubyFactoriesChecklist' do
       subject { Checklists::RubyFactoriesChecklist.new }
 

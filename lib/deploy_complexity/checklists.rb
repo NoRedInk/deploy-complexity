@@ -9,12 +9,16 @@ module Checklists
       "checklist:#{self.class.name}"
     end
 
+    def title
+      "**#{human_name} Checklist**"
+    end
+
     def to_s
       self.class.name
     end
 
     def for_pr_body
-      "\n\n<!-- #{id} -->\n#{checklist}"
+      "\n\n<!-- #{id} -->\n#{title}\n\n#{checklist}"
     end
   end
 
@@ -27,6 +31,10 @@ module Checklists
   # rubocop:disable Metrics/LineLength
 
   class RubyFactoriesChecklist < Checklist
+    def human_name
+      "Ruby Factories"
+    end
+
     def checklist
       '
 **Ruby Factories Checklist**
@@ -41,10 +49,12 @@ module Checklists
   end
 
   class ElmFactoriesChecklist < Checklist
+    def human_name
+      "Elm Factories"
+    end
+
     def checklist
       '
-**Elm Factories Checklist**
-
 - [ ] Elm fuzz tests: use [shortList](https://github.com/NoRedInk/NoRedInk/blob/72626abf20e44eb339dd60ebb716e9447910127f/ui/tests/SpecHelpers.elm#L59) when a list fuzzer is generating too many cases
       '.strip
     end
@@ -55,10 +65,12 @@ module Checklists
   end
 
   class CapistranoChecklist < Checklist
+    def human_name
+      "Capistrano"
+    end
+
     def checklist
       "
-**Capistrano Checklist**
-
 The process for testing capistrano is to deploy the capistrano changes branch to staging prior to merging to master and verify the deploy doesn't explode.
 
 - [ ] Make a branch with capistrano changes
@@ -83,10 +95,12 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   end
 
   class OpsWorksChecklist < Checklist
+    def human_name
+      "OpsWorks"
+    end
+
     def checklist
       "
-**OpsWorks Checklist**
-
 - [ ] Change the source code branch for staging to the branch being tested in the opsworks UI
 - [ ] Create a brand new instance in the layer ([see instructions](https://github.com/NoRedInk/wiki/blob/master/ops-playbook/ops-scripts.md#synchronize_stackrb.))
 - [ ] Turn it on
@@ -105,10 +119,12 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   end
 
   class RoutesChecklist < Checklist
+    def human_name
+      "Routes"
+    end
+
     def checklist
       '
-**Routes Checklist**
-
 - [ ] Retired routes are redirected
       '.strip
     end
@@ -119,10 +135,12 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   end
 
   class ResqueChecklist < Checklist
+    def human_name
+      "Resque"
+    end
+
     def checklist
       '
-**Resque Checklist**
-
 - [ ] Resque jobs should not be allowed to change their `.perform` signature. Rather, create a new resque job and retire the old one post-deploy after the queue is empty
       '.strip
     end
@@ -133,10 +151,12 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   end
 
   class MigrationChecklist < Checklist
+    def human_name
+      "Migrations"
+    end
+
     def checklist
       '
-**Migrations Checklist**
-
 - [ ] If there are any potential [Slow Migrations](https://github.com/NoRedInk/wiki/blob/master/Slow-Migrations.md), make sure that:
   - [ ] They are in separate PRs so each can be run independently
   - [ ] There is a deployment plan where the resulting code on prod will support the db schema both before and after the migration
