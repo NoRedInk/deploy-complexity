@@ -71,6 +71,8 @@ puts "Checking branch #{options.branch}..."
 client = Octokit::Client.new(access_token: options.token)
 pr = PullRequest.new(client, options.org, options.repo, options.branch)
 
+puts "!!! IN DRY RUN MODE, NOT DOING ANY OF THESE THINGS !!!" if options.dry_run
+
 unless pr.present?
   puts "Could not find pull request!"
   exit 0
