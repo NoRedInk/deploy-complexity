@@ -8,7 +8,7 @@ require 'octokit'
 
 # options and validation
 class Options
-  attr_writer :branch, :token, :org, :repo
+  attr_writer :branch, :token, :org, :repo, :dry_run
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
@@ -31,6 +31,10 @@ class Options
 
   def repo
     @repo || "NoRedInk"
+  end
+
+  def dry_run
+    @dry_run || false
   end
 end
 
@@ -56,6 +60,11 @@ OptionParser.new do |opts|
     "-r", "--repo repo", String,
     "Github repository to query for PRs (default: NoRedInk)"
   ) { |repo| options.repo = repo }
+
+  opts.on(
+    "-n", "--dry-run",
+    "Check things, but do not make any edits or comments"
+  ) { |dry_run| options.dry_run = dry_run }
 end.parse!
 
 puts "Checking branch #{options.branch}..."

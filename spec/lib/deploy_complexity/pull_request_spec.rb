@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'deploy_complexity/pull_request'
+require 'octokit'
 
 describe PullRequest do
   let(:prs) { [Struct.new(:body, :number).new(body, number)] }
