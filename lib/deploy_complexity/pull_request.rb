@@ -63,7 +63,7 @@ class PullRequest
     comment = "🤖 Beep boop! I added #{checklist_str}! Why?\n\n| I added this checklist | because these files changed |\n|---|---|\n"
     checklists.each do |checklist, files|
       comment += "| #{checklist.human_name} | "
-      comment += files.map { |f| "`#{f}`" }.join(", ")
+      comment += files.map { |f| "`#{f}`" }.join(" ")
       comment += "|\n"
     end
     comment += "\nPlease take a look at the updated pull request body and make sure you check off any new items. Thanks!"
