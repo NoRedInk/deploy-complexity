@@ -4,6 +4,7 @@
 require 'deploy_complexity/checklists'
 require 'deploy_complexity/pull_request'
 require 'optparse'
+require 'octokit'
 
 # options and validation
 class Options
@@ -58,7 +59,8 @@ OptionParser.new do |opts|
 end.parse!
 
 puts "Checking branch #{options.branch}..."
-pr = PullRequest.new(options.branch, options.token, options.org, options.repo)
+client = Octokit::Client.new(access_token: options.token)
+pr = PullRequest.new(client, options.org, options.repo, options.branch)
 
 unless pr.present?
   puts "Could not find pull request!"
@@ -67,11 +69,15 @@ end
 
 puts "Found pull request #{pr}"
 files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
-new_checklists =
-  pr.append_checklists(Checklists.for_files(files_changed))
+checklists = Chceklists.for_files(files_changed)
+new_checklists = pr.update_with_checklists(checklists)
 
-new_checklists.each do |checklist|
-  puts "Added the #{checklist} checklist to this PR."
+new_checklists.each do |checklist, files|
+  puts "Added the #{checklist} checklist to this PR since these files changed: #{files.join(', ')}"
+end
+
+(checklists - new_checklists).each do |checklist, files|
+  puts "Already added the #{checklist} checklist to this PR since these files changed: #{files.join(', ')}"
 end
 
 if new_checklists.empty?
