@@ -7,7 +7,7 @@ describe PullRequest do
   let(:body) { "" }
   let(:number) { 42 }
   let(:client) { instance_double(Octokit::Client) }
-  let(:checklist) { Struct.new(:for_pr_body, :id).new("CHECKLIST", "ID") }
+  let(:checklist) { Struct.new(:for_pr_body, :id, :human_name).new("CHECKLIST", "ID", "HUMAN NAME") }
 
   before do
     # set up client double
@@ -58,11 +58,13 @@ describe PullRequest do
   end
 
   describe 'update_with_checklists' do
+    let(:checklists) { { checklist => ["file"] } }
+
     context "when the checklist isn't present" do
       let(:body) { "" }
 
       it "should add the checklist" do
-        expect(subject.update_with_checklists([checklist])).to include(checklist)
+        expect(subject.update_with_checklists(checklists)).to include(checklist)
       end
     end
 
@@ -70,7 +72,7 @@ describe PullRequest do
       let(:body) { checklist.id }
 
       it "should not add the checklist again" do
-        expect(subject.update_with_checklists([checklist])).to eq []
+        expect(subject.update_with_checklists(checklists)).to eq({})
       end
     end
   end
