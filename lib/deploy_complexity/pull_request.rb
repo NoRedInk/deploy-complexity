@@ -13,9 +13,9 @@ class PullRequest
     !pr.nil?
   end
 
-  def update_with_checklists(checklists)
-    added = append_checklists(checklists)
-    add_checklist_comment(checklists) unless added.empty?
+  def update_with_checklists(checklists, dry_run = false)
+    added = append_checklists(checklists, dry_run)
+    add_checklist_comment(checklists, dry_run) unless added.empty?
 
     added
   end
@@ -34,7 +34,7 @@ class PullRequest
 
   private
 
-  def append_checklists(checklists)
+  def append_checklists(checklists, dry_run)
     return {} if pr.nil?
 
     new_checklists =
@@ -42,7 +42,7 @@ class PullRequest
 
     unless checklists.empty?
       new_body = body_with_checklist(new_checklists)
-      @client.update_issue(org_and_repo, number, body: new_body)
+      @client.update_issue(org_and_repo, number, body: new_body) unless dry_run
       @pr = nil
     end
 
@@ -52,7 +52,7 @@ class PullRequest
   # disable line length because GFM dislikes newlines--it interprets them
   # literally leading to weird-looking comments.
   # rubocop:disable Metrics/LineLength
-  def add_checklist_comment(checklists)
+  def add_checklist_comment(checklists, dry_run)
     return if pr.nil?
 
     checklist_str = checklists.length == 1 ? "a checklist" : "some checklists"
@@ -64,7 +64,7 @@ class PullRequest
     end
     comment += "\nPlease take a look at the updated pull request body and make sure you check off any new items. Thanks!"
 
-    @client.add_comment(org_and_repo, number, comment)
+    @client.add_comment(org_and_repo, number, comment) unless dry_run
   end
   # rubocop:enable Metrics/LineLength
 
