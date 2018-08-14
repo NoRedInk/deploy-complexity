@@ -52,6 +52,10 @@ class PullRequest
   # disable line length because GFM dislikes newlines--it interprets them
   # literally leading to weird-looking comments.
   # rubocop:disable Metrics/LineLength
+  #
+  # most of this is templating, so complexity is low despite appearing high!
+  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/AbcSize
   def add_checklist_comment(checklists, dry_run)
     return if pr.nil?
 
@@ -64,9 +68,18 @@ class PullRequest
     end
     comment += "\nPlease take a look at the updated pull request body and make sure you check off any new items. Thanks!"
 
-    @client.add_comment(org_and_repo, number, comment) unless dry_run
+    if dry_run
+      puts "would have left this comment:"
+      puts "======="
+      puts comment
+      puts "======="
+    else
+      @client.add_comment(org_and_repo, number, comment)
+    end
   end
+  # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/LineLength
+  # rubocop:enable Metrics/MethodLength
 
   def number
     pr&.number
