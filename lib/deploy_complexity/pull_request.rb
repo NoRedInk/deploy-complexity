@@ -13,7 +13,7 @@ class PullRequest
     !pr.nil?
   end
 
-  def update_with_checklists(checklists, dry_run = false)
+  def update_with_checklists(checklists, dry_run)
     added = append_checklists(checklists, dry_run)
     add_checklist_comment(checklists, dry_run) unless added.empty?
 

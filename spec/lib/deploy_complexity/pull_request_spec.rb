@@ -30,7 +30,7 @@ describe PullRequest do
     end
 
     it "cannot update with checklists" do
-      expect { subject.update_with_checklists([checklist]) }.to_not raise_exception
+      expect { subject.update_with_checklists([checklist], false) }.to_not raise_exception
     end
 
     it "cannot get base" do
@@ -65,7 +65,7 @@ describe PullRequest do
       let(:body) { "" }
 
       it "should add the checklist" do
-        expect(subject.update_with_checklists(checklists)).to include(checklist)
+        expect(subject.update_with_checklists(checklists, false)).to include(checklist)
       end
     end
 
@@ -73,7 +73,7 @@ describe PullRequest do
       let(:body) { checklist.id }
 
       it "should not add the checklist again" do
-        expect(subject.update_with_checklists(checklists)).to eq({})
+        expect(subject.update_with_checklists(checklists, false)).to eq({})
       end
     end
   end
