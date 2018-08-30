@@ -15,7 +15,7 @@ class PullRequest
 
   def update_with_checklists(checklists, dry_run)
     added = append_checklists(checklists, dry_run)
-    add_checklist_comment(checklists, dry_run) unless added.empty?
+    add_checklist_comment(added, dry_run) unless added.empty?
 
     added
   end
