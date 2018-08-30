@@ -37,8 +37,6 @@ module Checklists
 
     def checklist
       '
-**Ruby Factories Checklist**
-
 - [ ] RSpec: use [traits](https://robots.thoughtbot.com/remove-duplication-with-factorygirls-traits) to make the default case fast
       '.strip
     end
