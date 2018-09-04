@@ -4,10 +4,11 @@
 require 'deploy_complexity/checklists'
 require 'deploy_complexity/pull_request'
 require 'optparse'
+require 'octokit'
 
 # options and validation
 class Options
-  attr_writer :branch, :token, :org, :repo
+  attr_writer :branch, :token, :org, :repo, :dry_run
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
@@ -30,6 +31,10 @@ class Options
 
   def repo
     @repo || "NoRedInk"
+  end
+
+  def dry_run
+    @dry_run || false
   end
 end
 
@@ -55,10 +60,18 @@ OptionParser.new do |opts|
     "-r", "--repo repo", String,
     "Github repository to query for PRs (default: NoRedInk)"
   ) { |repo| options.repo = repo }
+
+  opts.on(
+    "-n", "--dry-run",
+    "Check things, but do not make any edits or comments"
+  ) { |dry_run| options.dry_run = dry_run }
 end.parse!
 
 puts "Checking branch #{options.branch}..."
-pr = PullRequest.new(options.branch, options.token, options.org, options.repo)
+client = Octokit::Client.new(access_token: options.token)
+pr = PullRequest.new(client, options.org, options.repo, options.branch)
+
+puts "!!! IN DRY RUN MODE, NOT DOING ANY OF THESE THINGS !!!" if options.dry_run
 
 unless pr.present?
   puts "Could not find pull request!"
@@ -66,17 +79,21 @@ unless pr.present?
 end
 
 puts "Found pull request #{pr}"
-files_changed = Checklists.get_files_changed(pr.base, pr.head)
-new_checklists =
-  pr.append_checklists(Checklists.checklists_for_files(files_changed))
+files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
+checklists = Checklists.for_files(files_changed)
+new_checklists = pr.update_with_checklists(checklists, options.dry_run)
 
-new_checklists.each do |checklist|
-  puts "Added the #{checklist} checklist to this PR."
+new_checklists.each do |checklist, files|
+  puts "Added the #{checklist} checklist to this PR since these files changed: #{files.join(', ')}"
+end
+
+checklists.each do |checklist, files|
+  next if new_checklists[checklist]
+  puts "Already added the #{checklist} checklist to this PR since these files changed: #{files.join(', ')}"
 end
 
 if new_checklists.empty?
   puts "Didn't need to add any checklists on this PR."
 else
-  pr.add_checklist_comment(new_checklists)
   puts "Left a comment about the new checklists."
 end
