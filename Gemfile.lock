@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    deploy-complexity (0.1.0)
+    deploy-complexity (0.3.0)
       octokit (~> 4.0)
 
 GEM
@@ -17,7 +17,7 @@ GEM
     jaro_winkler (1.5.1)
     method_source (0.8.2)
     multipart-post (2.0.0)
-    octokit (4.9.0)
+    octokit (4.11.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     parallel (1.12.1)
     parser (2.5.1.2)
@@ -29,7 +29,7 @@ GEM
     pry-doc (0.11.1)
       pry (~> 0.9)
       yard (~> 0.9)
-    public_suffix (3.0.2)
+    public_suffix (3.0.3)
     rainbow (3.0.0)
     rake (10.5.0)
     rspec (3.8.0)
@@ -74,4 +74,4 @@ DEPENDENCIES
   rubocop
 
 BUNDLED WITH
-   1.16.2
+   1.16.4
