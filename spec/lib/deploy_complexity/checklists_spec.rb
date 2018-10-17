@@ -196,5 +196,15 @@ describe Checklists do
         expect(subject).to be_relevant_for("db/migrate/hey_whats_up.rb")
       end
     end
+
+    describe "DockerfileChecklist" do
+      subject { Checklists::DockerfileChecklist.new }
+
+      it_behaves_like "a checklist class"
+
+      it "should be relevant for Dockerfile" do
+        expect(subject).to be_relevant_for("Dockerfile")
+      end
+    end
   end
 end

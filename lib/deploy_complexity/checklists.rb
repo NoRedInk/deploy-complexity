@@ -167,6 +167,23 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
   end
 
+  class DockerfileChecklist < Checklist
+    def human_name
+      "Dockerfile"
+    end
+
+    def checklist
+      '
+- [ ] If you added a dependency to the Dockerfile, also add it to Chef so Jenkins master gets the update.
+  - consequence of not doing this: deploys will break!
+      '.strip
+    end
+
+    def relevant_for(files)
+      files.select { |file| file.include? "Dockerfile" }
+    end
+  end
+
   # all done!
   # rubocop:enable Style/Documentation
   # rubocop:enable Metrics/LineLength
@@ -195,7 +212,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     OpsWorksChecklist,
     RoutesChecklist,
     ResqueChecklist,
-    MigrationChecklist
+    MigrationChecklist,
+    DockerfileChecklist
   ].freeze
 
   def for_files(files)
