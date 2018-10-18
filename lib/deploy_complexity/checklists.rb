@@ -174,7 +174,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
 
     def checklist
       '
-- [ ] If you added a dependency to the Dockerfile, also add it to Chef so Jenkins master gets the update.
+- [ ] If you added a dependency to the Dockerfile for a script that will be called during both CI builds **and** Deploy builds then you should also add that dependency to the chef recipe for [jenkins_common](https://github.com/NoRedInk/NoRedInk-chef/blob/master/site-cookbooks/noredink/recipes/jenkins_common.rb).
   - consequence of not doing this: deploys will break!
       '.strip
     end
