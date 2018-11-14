@@ -89,6 +89,7 @@ end
 
 checklists.each do |checklist, files|
   next if new_checklists[checklist]
+
   puts "Already added the #{checklist} checklist to this PR since these files changed: #{files.join(', ')}"
 end
 
