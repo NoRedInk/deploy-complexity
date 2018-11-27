@@ -30,6 +30,10 @@ module Checklists
   # line length checks for now.
   # rubocop:disable Metrics/LineLength
 
+  # Some checks are on quite a few files! They're simple checks, so the
+  # cyclomatic complexity here is not actually too bad for a human.
+  # rubocop:disable Metrics/CyclomaticComplexity
+
   class RubyFactoriesChecklist < Checklist
     def human_name
       "Ruby Factories"
@@ -212,6 +216,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   # all done!
   # rubocop:enable Style/Documentation
   # rubocop:enable Metrics/LineLength
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   # Check for checklists, given a list of checkers
   class Checker
