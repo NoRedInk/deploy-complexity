@@ -227,12 +227,12 @@ describe Checklists do
 
       it "should be relevant for any Node package file" do
         expect(subject).to be_relevant_for("package.json")
-        expect(subject).to be_relevant_for("package-lock.lock")
+        expect(subject).to be_relevant_for("package-lock.json")
       end
 
       it "should be relevant for any Node package file in a subdirectory" do
         expect(subject).to be_relevant_for("subdir/package.json")
-        expect(subject).to be_relevant_for("subdir/package-lock.lock")
+        expect(subject).to be_relevant_for("subdir/package-lock.json")
       end
 
       it "should be releavnt for any Python package file" do
