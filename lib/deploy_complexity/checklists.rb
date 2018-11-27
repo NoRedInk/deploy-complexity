@@ -184,6 +184,31 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
   end
 
+  class NixChecklist < Checklist
+    def human_name
+      "Nix"
+    end
+
+    def checklist
+      '
+- [ ] changes build successfully with Nix (`nix-shell --pure` to check)
+- [ ] once approved, but before merging, make sure to update the Nix cache so that other people don\'t have to rebuild all changes.
+      '
+    end
+
+    def relevant_for(files)
+      files.select do |file|
+        file.start_with?("nix") \
+          || file.end_with?("nix") \
+          || file == "Gemfile" \
+          || file == "Gemfile.lock" \
+          || file.end_with?("package.json") \
+          || file.end_with?("package-lock.json") \
+          || file == "requirements.txt"
+      end
+    end
+  end
+
   # all done!
   # rubocop:enable Style/Documentation
   # rubocop:enable Metrics/LineLength
@@ -213,7 +238,8 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     RoutesChecklist,
     ResqueChecklist,
     MigrationChecklist,
-    DockerfileChecklist
+    DockerfileChecklist,
+    NixChecklist
   ].freeze
 
   def for_files(files)

@@ -206,5 +206,38 @@ describe Checklists do
         expect(subject).to be_relevant_for("Dockerfile")
       end
     end
+
+    describe 'NixChecklist' do
+      subject { Checklists::NixChecklist.new }
+
+      it_behaves_like "a checklist class"
+
+      it "should be relevant for any nix file" do
+        expect(subject).to be_relevant_for("shell.nix")
+      end
+
+      it "should be relevant for any file in the nix directory" do
+        expect(subject).to be_relevant_for("nix/something.sh")
+      end
+
+      it "should be relevant for any Ruby package file" do
+        expect(subject).to be_relevant_for("Gemfile")
+        expect(subject).to be_relevant_for("Gemfile.lock")
+      end
+
+      it "should be relevant for any Node package file" do
+        expect(subject).to be_relevant_for("package.json")
+        expect(subject).to be_relevant_for("package-lock.lock")
+      end
+
+      it "should be relevant for any Node package file in a subdirectory" do
+        expect(subject).to be_relevant_for("subdir/package.json")
+        expect(subject).to be_relevant_for("subdir/package-lock.lock")
+      end
+
+      it "should be releavnt for any Python package file" do
+        expect(subject).to be_relevant_for("requirements.txt")
+      end
+    end
   end
 end
