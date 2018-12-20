@@ -4,6 +4,7 @@
 require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
+require 'deploy_complexity/changed_files'
 
 # ||||||| THIS SCRIPT'S RUBOCOP RAP SHEET |||||||||
 # resolve these if you can, and try not to add more
@@ -24,7 +25,6 @@ end
 
 PR_FORMAT = "%s/pull/%d %1s %s"
 COMPARE_FORMAT = "%s/compare/%s...%s"
-MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -74,11 +74,11 @@ def deploy(base, to, options)
   merges = commits.grep(/Merges|\#\d+/)
 
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
-  migrations = shortstat.grep(/migrate/).map do |line|
-    line.match(%r{db/migrate/(.*)$}) do |m|
-      MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
-    end
-  end
+  names_only = `git diff --name-only #{range}`
+  versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
+  changed_files = ChangedFiles.new(names_only, versioned_url)
+  migrations = changed_files.migrations
+
   # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
