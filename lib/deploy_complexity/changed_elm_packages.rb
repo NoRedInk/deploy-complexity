@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'deploy_complexity/changed_dependencies'
+require 'json'
 
 # Takes in two elm.json files and detects which packages have changed
 class ChangedElmPackages < ChangedDependencies
   private
 
-  def all_dependencies(json)
+  def parse_dependencies(file)
+    json = JSON.parse(file)
     dependencies = json.fetch("dependencies")
     test_dependencies = json.fetch("test-dependencies")
 

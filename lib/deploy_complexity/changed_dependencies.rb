@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'json'
-
 # Detects and formats changes in dependencies
 # This is the parent class - each type of dependency file should implement
 # it's own version of this. See changed_javascript_packages.rb for an example.
 class ChangedDependencies
   def initialize(old:, new:)
-    @old_dependencies = all_dependencies(JSON.parse(old))
-    @new_dependencies = all_dependencies(JSON.parse(new))
+    @old_dependencies = parse_dependencies(old)
+    @new_dependencies = parse_dependencies(new)
   end
 
   def changes
@@ -24,7 +22,7 @@ class ChangedDependencies
   # This should be implemented in the child classes
   # @param [String] the dependency file to be parsed
   # @return [ Object{String => String} ] map of the dependency name to the version
-  def all_dependencies(_json)
+  def parse_dependencies(_file)
     {}
   end
 
