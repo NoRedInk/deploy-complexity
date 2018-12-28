@@ -1,0 +1,30 @@
+PATH
+  remote: .
+  specs:
+    deploy-complexity (0.4.0)
+      octokit (~> 4.0)
+
+GIT
+  remote: https://github.com/someone_else/rake.git
+  revision: 059575a653a75b24af15ba548bae7d4e022a5c23
+  specs:
+    rake (10.5.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    pry (0.12.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    rake (10.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.11)
+  deploy-complexity!
+  pry
+
+BUNDLED WITH
+  1.16.5
