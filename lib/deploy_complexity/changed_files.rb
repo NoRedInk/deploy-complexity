@@ -13,8 +13,4 @@ class ChangedFiles
       @versioned_url + line.chomp
     end
   end
-
-  def elm_packages
-    @names.grep(%r{(^|/)elm.json$}).map(&:chomp)
-  end
 end
