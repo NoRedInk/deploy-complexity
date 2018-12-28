@@ -10,14 +10,10 @@ class ChangedElmPackages
   end
 
   def changes
-    added = added_dependencies
-    removed = removed_dependencies
-    updated = updated_dependencies
-
     [
-      format_dependencies("Added", added),
-      format_dependencies("Removed", removed),
-      format_updated_dependencies(updated)
+      format_dependencies("Added", added_dependencies),
+      format_dependencies("Removed", removed_dependencies),
+      format_updated_dependencies(updated_dependencies)
     ].flatten
   end
 
