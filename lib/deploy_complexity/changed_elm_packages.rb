@@ -10,11 +10,15 @@ class ChangedElmPackages
   end
 
   def changes
-    {
-      added: added_dependencies,
-      removed: removed_dependencies,
-      updated: updated_dependencies
-    }
+    added = added_dependencies
+    removed = removed_dependencies
+    updated = updated_dependencies
+
+    [
+      format_dependencies("Added", added),
+      format_dependencies("Removed", removed),
+      format_updated_dependencies(updated)
+    ].flatten
   end
 
   private
@@ -48,6 +52,18 @@ class ChangedElmPackages
         old: @old_dependencies[package],
         new: new_version
       }
+    end
+  end
+
+  def format_dependencies(label, dependencies)
+    dependencies.map do |(package, version)|
+      "#{label} #{package}: #{version}"
+    end
+  end
+
+  def format_updated_dependencies(dependencies)
+    dependencies.map do |(package, versions)|
+      "Updated #{package}: #{versions.fetch(:old)} -> #{versions.fetch(:new)}"
     end
   end
 end

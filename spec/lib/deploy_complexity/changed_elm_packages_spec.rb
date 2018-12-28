@@ -26,29 +26,6 @@ describe ChangedElmPackages do
     TXT
   end
 
-  let(:new) do
-    <<-TXT.gsub(/^\s+/, "")
-      {
-          "type": "application",
-          "source-directories": [],
-          "elm-version": "0.19.0",
-          "dependencies": {
-              "direct": {},
-              "indirect": {
-                  "elm/json": "1.2.2",
-                  "elm/time": "1.0.0"
-              }
-          },
-          "test-dependencies": {
-              "direct": {
-                  "elm-explorations/test": "1.2.0"
-              },
-              "indirect": {}
-          }
-      }
-    TXT
-  end
-
   subject(:changed_elm_packages) do
     ChangedElmPackages.new(
       old: old,
@@ -57,12 +34,47 @@ describe ChangedElmPackages do
   end
 
   describe "#changes" do
-    it "generates a list of changed packages" do
-      expect(changed_elm_packages.changes).to eq(
-        added: {"elm/time" => "1.0.0", "elm-explorations/test" => "1.2.0"},
-        removed: { "elm/core" => "1.0.2" },
-        updated: { "elm/json" => { old: "1.1.2", new: "1.2.2"} }
-      )
+    context "with no changed packages" do
+      let(:new) { old }
+      it "returns an empty array" do
+        expect(changed_elm_packages.changes).to eq([])
+      end
+    end
+
+    context "with changed packages" do
+      let(:new) do
+        <<-TXT.gsub(/^\s+/, "")
+          {
+              "type": "application",
+              "source-directories": [],
+              "elm-version": "0.19.0",
+              "dependencies": {
+                  "direct": {},
+                  "indirect": {
+                      "elm/json": "1.2.2",
+                      "elm/time": "1.0.0"
+                  }
+              },
+              "test-dependencies": {
+                  "direct": {
+                      "elm-explorations/test": "1.2.0"
+                  },
+                  "indirect": {}
+              }
+          }
+        TXT
+      end
+
+      it "formats the changes" do
+        expect(changed_elm_packages.changes).to eq(
+          [
+            "Added elm/time: 1.0.0",
+            "Added elm-explorations/test: 1.2.0",
+            "Removed elm/core: 1.0.2",
+            "Updated elm/json: 1.1.2 -> 1.2.2"
+          ]
+        )
+      end
     end
   end
 end
