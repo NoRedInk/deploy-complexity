@@ -6,6 +6,7 @@ require 'bundler/setup'
 require 'deploy_complexity/version'
 require 'deploy_complexity/changed_files'
 require 'deploy_complexity/changed_elm_packages'
+require 'deploy_complexity/changed_javascript_packages'
 
 # ||||||| THIS SCRIPT'S RUBOCOP RAP SHEET |||||||||
 # resolve these if you can, and try not to add more
@@ -85,6 +86,11 @@ def deploy(base, to, options)
   elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
   changed_elm_packages = elm_packages.changes
 
+  old_package_lock = `git show #{base}:package-lock.json`
+  new_package_lock = `git show #{to}:package-lock.json`
+  javascript_packages = ChangedJavascriptPackages.new(old: old_package_lock, new: new_package_lock)
+  changed_javascript_packages = javascript_packages.changes
+
   # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
@@ -108,6 +114,7 @@ def deploy(base, to, options)
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts "Migrations:", migrations if migrations.any?
     puts "Elm package changes:", changed_elm_packages if changed_elm_packages.any?
+    puts "JavaScript dependency changes:", changed_javascript_packages if changed_javascript_packages.any?
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests

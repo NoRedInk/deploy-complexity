@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
 require 'deploy_complexity/changed_dependencies'
 
 # Takes in two elm.json files and detects which packages have changed

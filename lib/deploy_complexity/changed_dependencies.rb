@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 # Detects and formats changes in dependencies
 # This is the parent class - each type of dependency file should implement
 # it's own version of this. See changed_javascript_packages.rb for an example.
