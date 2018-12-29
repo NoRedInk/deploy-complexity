@@ -81,11 +81,16 @@ def deploy(base, to, options)
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
   changed_files = ChangedFiles.new(names_only, versioned_url)
   migrations = changed_files.migrations
+  changed_elm_package_files = changed_files.elm_packages
 
-  old_elm_package = `git show #{base}:ui/elm.json`
-  new_elm_package = `git show #{to}:ui/elm.json`
-  elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
-  changed_elm_packages = elm_packages.changes
+  changed_elm_packages = []
+
+  changed_elm_package_files.each do |elm_package_file|
+    old_elm_package = `git show #{base}:#{elm_package_file}`
+    new_elm_package = `git show #{to}:#{elm_package_file}`
+    elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
+    changed_elm_packages += elm_packages.changes
+  end
 
   old_package_lock = `git show #{base}:package-lock.json`
   new_package_lock = `git show #{to}:package-lock.json`
