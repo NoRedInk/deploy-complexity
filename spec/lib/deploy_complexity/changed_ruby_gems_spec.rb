@@ -27,12 +27,12 @@ describe ChangedRubyGems do
       let(:new) { File.read("spec/lib/deploy_complexity/spec_helpers/new_gemfile_lock.txt") }
 
       it "formats the changes" do
-        # TODO: make sure we test if something has moved from GEM -> GIT
         expect(changed_ruby_gems.changes).to eq(
           [
             "Added deploy-complexity: 0.4.0",
             "Added rake: 10.5.0",
             "Removed pry-doc: 0.13.5",
+            "Updated babadook: 1.0.0 -> 1.0.0 (GIT https://github.com/notrubygems.git bbbb)",
             "Updated pry: 0.12.2 -> 0.12.3"
           ]
         )

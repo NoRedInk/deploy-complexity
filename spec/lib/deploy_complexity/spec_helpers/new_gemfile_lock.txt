@@ -5,10 +5,10 @@ PATH
       octokit (~> 4.0)
 
 GIT
-  remote: https://github.com/someone_else/rake.git
-  revision: 059575a653a75b24af15ba548bae7d4e022a5c23
+  remote: https://github.com/notrubygems.git
+  revision: bbbb
   specs:
-    rake (10.5.0)
+    babadook (1.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -24,7 +24,9 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.11)
   deploy-complexity!
+  babadook
   pry
+  rake
 
 BUNDLED WITH
   1.16.5

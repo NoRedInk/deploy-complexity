@@ -12,7 +12,12 @@ class ChangedRubyGems < ChangedDependencies
     lockfile_parser = Bundler::LockfileParser.new(file)
 
     lockfile_parser.specs.each_with_object({}) do |spec, collection|
-      collection[spec.name] = spec.version
+      version = spec.version.to_s
+
+      # Consider Git sources separately so we know where they are coming from
+      version += " (GIT #{spec.source.uri} #{spec.source.revision})" if spec.source.is_a?(Bundler::Source::Git)
+
+      collection[spec.name] = version
     end
   end
 end
