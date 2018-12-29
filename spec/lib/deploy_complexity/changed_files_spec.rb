@@ -26,4 +26,11 @@ describe ChangedFiles do
         .to(eq(["#{versioned_url}db/migrate/20121210193522_add_a_to_b.rb"]))
     end
   end
+
+  describe "#elm_packages" do
+    it "generates a list of paths of elm.json files" do
+      expect(changed_files.elm_packages)
+        .to eq(["frontend/elm.json", "elm.json"])
+    end
+  end
 end
