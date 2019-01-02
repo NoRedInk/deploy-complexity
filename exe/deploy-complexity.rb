@@ -82,8 +82,23 @@ def list_changed_elm_dependencies(changed_files, base:, to:)
     changed_elm_packages += elm_packages.changes
   end
 
+  puts
   puts "Changed Elm packages:"
   puts changed_elm_packages
+  puts
+end
+
+def list_changed_ruby_dependencies(changed_files, base:, to:)
+  changed_ruby_dependencies = changed_files.ruby_dependencies
+  return unless changed_ruby_dependencies.any?
+
+  old_gemfile_lock = `git show #{base}:Gemfile.lock`
+  new_gemfile_lock = `git show #{to}:Gemfile.lock`
+  ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
+
+  puts
+  puts "Ruby dependency changes:"
+  puts ruby_gems.changes
   puts
 end
 
@@ -113,11 +128,6 @@ def deploy(base, to, options)
   javascript_packages = ChangedJavascriptPackages.new(old: old_package_lock, new: new_package_lock)
   changed_javascript_packages = javascript_packages.changes
 
-  old_gemfile_lock = `git show #{base}:Gemfile.lock`
-  new_gemfile_lock = `git show #{to}:Gemfile.lock`
-  ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
-  changed_ruby_gems = ruby_gems.changes
-
   # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
@@ -142,9 +152,7 @@ def deploy(base, to, options)
     list_migrations(changed_files)
     list_changed_elm_dependencies(changed_files, base: base, to: to)
     puts "JavaScript dependency changes:", changed_javascript_packages if changed_javascript_packages.any?
-    puts
-    puts "Ruby dependency changes:", changed_ruby_gems if changed_ruby_gems.any?
-    puts
+    list_changed_ruby_dependencies(changed_files, base: base, to: to)
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
