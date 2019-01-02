@@ -13,6 +13,8 @@ describe ChangedFiles do
       script/do_the_thing.sh
       elm.json
       app/selm.json
+      Gemfile.lock
+      Gemfile.locknessmonster
     TXT
   end
 
@@ -31,6 +33,13 @@ describe ChangedFiles do
     it "generates a list of paths of elm.json files" do
       expect(changed_files.elm_packages)
         .to eq(["frontend/elm.json", "elm.json"])
+    end
+  end
+
+  describe "#ruby_dependencies" do
+    it "generates a list of paths of Gemfile.lock files" do
+      expect(changed_files.ruby_dependencies)
+        .to eq(["Gemfile.lock"])
     end
   end
 end
