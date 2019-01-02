@@ -60,6 +60,33 @@ def reference(name)
   end
 end
 
+def list_migrations(changed_files)
+  migrations = changed_files.migrations
+  return unless migrations.any?
+
+  puts "Migrations:"
+  puts migrations
+  puts
+end
+
+def list_changed_elm_dependencies(changed_files, base:, to:)
+  changed_elm_package_files = changed_files.elm_packages
+  return unless changed_elm_package_files.any?
+
+  changed_elm_packages = []
+
+  changed_elm_package_files.each do |elm_package_file|
+    old_elm_package = `git show #{base}:#{elm_package_file}`
+    new_elm_package = `git show #{to}:#{elm_package_file}`
+    elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
+    changed_elm_packages += elm_packages.changes
+  end
+
+  puts "Changed Elm packages:"
+  puts changed_elm_packages
+  puts
+end
+
 # deploys are the delta from base -> to, so to contains commits to add to base
 def deploy(base, to, options)
   gh_url = options[:gh_url]
@@ -80,17 +107,6 @@ def deploy(base, to, options)
   names_only = `git diff --name-only #{range}`
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
   changed_files = ChangedFiles.new(names_only, versioned_url)
-  migrations = changed_files.migrations
-  changed_elm_package_files = changed_files.elm_packages
-
-  changed_elm_packages = []
-
-  changed_elm_package_files.each do |elm_package_file|
-    old_elm_package = `git show #{base}:#{elm_package_file}`
-    new_elm_package = `git show #{to}:#{elm_package_file}`
-    elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
-    changed_elm_packages += elm_packages.changes
-  end
 
   old_package_lock = `git show #{base}:package-lock.json`
   new_package_lock = `git show #{to}:package-lock.json`
@@ -123,10 +139,8 @@ def deploy(base, to, options)
          [pull_requests.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
-    puts "Migrations:", migrations if migrations.any?
-    puts
-    puts "Elm package changes:", changed_elm_packages if changed_elm_packages.any?
-    puts
+    list_migrations(changed_files)
+    list_changed_elm_dependencies(changed_files, base: base, to: to)
     puts "JavaScript dependency changes:", changed_javascript_packages if changed_javascript_packages.any?
     puts
     puts "Ruby dependency changes:", changed_ruby_gems if changed_ruby_gems.any?
