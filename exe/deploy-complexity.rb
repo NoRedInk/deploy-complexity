@@ -10,16 +10,6 @@ require 'deploy_complexity/changed_elm_packages'
 require 'deploy_complexity/changed_javascript_packages'
 require 'deploy_complexity/changed_ruby_gems'
 
-# ||||||| THIS SCRIPT'S RUBOCOP RAP SHEET |||||||||
-# resolve these if you can, and try not to add more
-#
-# rubocop:disable Style/FormatStringToken
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/PerceivedComplexity
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/BlockLength
-
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
   tag.match(/-(\d{4}-\d{2}-\d{2}-\d{2}\d{2})/) do |m|

@@ -53,9 +53,6 @@ class PullRequest
   # literally leading to weird-looking comments.
   # rubocop:disable Metrics/LineLength
   #
-  # most of this is templating, so complexity is low despite appearing high!
-  # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Metrics/AbcSize
   def add_checklist_comment(checklists, dry_run)
     return if pr.nil?
 
@@ -77,9 +74,7 @@ class PullRequest
       @client.add_comment(org_and_repo, number, comment)
     end
   end
-  # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/LineLength
-  # rubocop:enable Metrics/MethodLength
 
   def number
     pr&.number
