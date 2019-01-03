@@ -59,6 +59,7 @@ GEM
       faraday (~> 0.8, < 1.0)
     slack-notifier (2.3.2)
     unicode-display_width (1.4.0)
+    values (1.8.0)
     yard (0.9.16)
 
 PLATFORMS
@@ -74,6 +75,7 @@ DEPENDENCIES
   rspec-mocks
   rubocop
   slack-notifier
+  values
 
 BUNDLED WITH
    1.17.1
