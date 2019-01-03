@@ -9,12 +9,21 @@ class RevisionComparator
     @to = to
   end
 
-  def packages
+  def changes
     @files.inject([]) do |changes, file|
       old = `git show #{@base}:#{file}`
       new = `git show #{@to}:#{file}`
       packages = @parser.new(old: old, new: new)
       changes + packages.changes
     end
+  end
+
+  def output(title)
+    packages = changes
+    return unless packages.any?
+
+    puts title
+    puts packages
+    puts
   end
 end

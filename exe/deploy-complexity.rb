@@ -71,39 +71,21 @@ def list_migrations(changed_files)
 end
 
 def list_changed_elm_dependencies(changed_files, base:, to:)
-  packages = RevisionComparator.new(
+  RevisionComparator.new(
     ChangedElmPackages, changed_files.elm_packages, base, to
-  ).packages
-  return unless packages.any?
-
-  puts
-  puts "Changed Elm packages:"
-  puts packages
-  puts
+  ).output("Changed Elm packages:")
 end
 
 def list_changed_ruby_dependencies(changed_files, base:, to:)
-  packages = RevisionComparator.new(
+  RevisionComparator.new(
     ChangedRubyGems, changed_files.ruby_dependencies, base, to
-  ).packages
-  return unless packages.any?
-
-  puts
-  puts "Ruby dependency changes:"
-  puts packages
-  puts
+  ).output("Ruby dependency changes:")
 end
 
 def list_changed_javascript_dependencies(changed_files, base:, to:)
-  packages = RevisionComparator.new(
+  RevisionComparator.new(
     ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
-  ).packages
-  return unless packages.any?
-
-  puts
-  puts "Javascript Dependency Changes:"
-  puts packages
-  puts
+  ).output("Javascript Dependency Changes:")
 end
 
 # deploys are the delta from base -> to, so to contains commits to add to base
