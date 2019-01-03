@@ -73,13 +73,11 @@ def list_changed_elm_dependencies(changed_files, base:, to:)
   changed_elm_package_files = changed_files.elm_packages
   return unless changed_elm_package_files.any?
 
-  changed_elm_packages = []
-
-  changed_elm_package_files.each do |elm_package_file|
+  changed_elm_packages = changed_elm_package_files.inject([]) do |changes, elm_package_file|
     old_elm_package = `git show #{base}:#{elm_package_file}`
     new_elm_package = `git show #{to}:#{elm_package_file}`
     elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
-    changed_elm_packages += elm_packages.changes
+    changes + elm_packages.changes
   end
 
   puts
@@ -92,13 +90,16 @@ def list_changed_ruby_dependencies(changed_files, base:, to:)
   changed_ruby_dependencies = changed_files.ruby_dependencies
   return unless changed_ruby_dependencies.any?
 
-  old_gemfile_lock = `git show #{base}:Gemfile.lock`
-  new_gemfile_lock = `git show #{to}:Gemfile.lock`
-  ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
+  changed_ruby_dependencies = changed_ruby_dependencies.inject([]) do |changes, ruby_dependency_file|
+    old_gemfile_lock = `git show #{base}:#{ruby_dependency_file}`
+    new_gemfile_lock = `git show #{to}:#{ruby_dependency_file}`
+    ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
+    changes + ruby_gems.changes
+  end
 
   puts
   puts "Ruby dependency changes:"
-  puts ruby_gems.changes
+  puts changed_ruby_dependencies
   puts
 end
 
