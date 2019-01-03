@@ -84,6 +84,8 @@ def file_changes(changed_files, base:, to:)
   RevisionComparator.new(
     ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
   ).output("Javascript Dependency Changes:")
+
+  # TODO: scan for changes to app/jobs and report changes to params
 end
 
 # deploys are the delta from base -> to, so to contains commits to add to base
@@ -105,9 +107,6 @@ def deploy(base, to, options)
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   names_only = `git diff --name-only #{range}`
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
-  changed_files = ChangedFiles.new(names_only, versioned_url)
-
-  # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
@@ -129,7 +128,7 @@ def deploy(base, to, options)
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts
-    file_changes(changed_files, base: base, to: to)
+    file_changes(ChangedFiles.new(names_only, versioned_url), base: base, to: to)
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
