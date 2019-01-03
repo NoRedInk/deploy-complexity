@@ -19,10 +19,10 @@ class ChangedFiles
   end
 
   def ruby_dependencies
-    @names.grep(/^Gemfile\.lock$/).map(&:chomp)
+    @names.grep(%r{(^|/)Gemfile\.lock$}).map(&:chomp)
   end
 
   def javascript_dependencies
-    @names.grep(/^package-lock\.json$/).map(&:chomp)
+    @names.grep(%r{(^|/)package-lock\.json$}).map(&:chomp)
   end
 end

@@ -15,8 +15,10 @@ describe ChangedFiles do
       app/selm.json
       Gemfile.lock
       Gemfile.locknessmonster
+      engine/Gemfile.lock
       package-lock.json
       packaged-socks.json
+      engine/package-lock.json
     TXT
   end
 
@@ -41,14 +43,14 @@ describe ChangedFiles do
   describe "#ruby_dependencies" do
     it "generates a list of paths of Gemfile.lock files" do
       expect(changed_files.ruby_dependencies)
-        .to eq(["Gemfile.lock"])
+        .to eq(["Gemfile.lock", "engine/Gemfile.lock"])
     end
   end
 
   describe "#javascript_dependencies" do
     it "generates a list of paths of package-lock.json files" do
       expect(changed_files.javascript_dependencies)
-        .to eq(["package-lock.json"])
+        .to eq(["package-lock.json", "engine/package-lock.json"])
     end
   end
 end
