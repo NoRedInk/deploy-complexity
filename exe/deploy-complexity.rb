@@ -70,19 +70,17 @@ def list_migrations(changed_files)
   puts
 end
 
-def list_changed_elm_dependencies(changed_files, base:, to:)
+def file_changes(changed_files, base:, to:)
+  list_migrations(changed_files)
+
   RevisionComparator.new(
     ChangedElmPackages, changed_files.elm_packages, base, to
   ).output("Changed Elm packages:")
-end
 
-def list_changed_ruby_dependencies(changed_files, base:, to:)
   RevisionComparator.new(
     ChangedRubyGems, changed_files.ruby_dependencies, base, to
   ).output("Ruby dependency changes:")
-end
 
-def list_changed_javascript_dependencies(changed_files, base:, to:)
   RevisionComparator.new(
     ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
   ).output("Javascript Dependency Changes:")
@@ -131,10 +129,7 @@ def deploy(base, to, options)
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     puts
-    list_migrations(changed_files)
-    list_changed_elm_dependencies(changed_files, base: base, to: to)
-    list_changed_javascript_dependencies(changed_files, base: base, to: to)
-    list_changed_ruby_dependencies(changed_files, base: base, to: to)
+    file_changes(changed_files, base: base, to: to)
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
