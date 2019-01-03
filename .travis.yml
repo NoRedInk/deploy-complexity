@@ -3,6 +3,11 @@ language: ruby
 # Ruby version is specified by .ruby-version in the root of this repo. If we ever
 # need to test multiple versions, we'll need to add them explicitly to this list:
 # rvm: [ 2.3 ]
+
+cache:
+  directories:
+     - /home/travis/.rvm/
+
 before_install:
   - gem update --system
   - gem install bundler
