@@ -61,6 +61,16 @@ def reference(name)
   end
 end
 
+def pull_requests(merges, gh_url)
+  merges.map do |line|
+    line.match(/pull request #(\d+) from (.*)$/) do |m|
+      PR_FORMAT % [gh_url, m[1].to_i, "-", safe_name(m[2])]
+    end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
+      PR_FORMAT % [gh_url, m[3].to_i, "S", m[2]] # squash merge
+    end
+  end.compact
+end
+
 def list_migrations(changed_files)
   migrations = changed_files.migrations
   return unless migrations.any?
@@ -113,13 +123,7 @@ def deploy(base, to, options)
   # and possibly per PR, or classify frontend, backend, spec changes
   stat = `git diff --stat #{range}` if stat
 
-  pull_requests = merges.map do |line|
-    line.match(/pull request #(\d+) from (.*)$/) do |m|
-      PR_FORMAT % [gh_url, m[1].to_i, "-", safe_name(m[2])]
-    end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
-      PR_FORMAT % [gh_url, m[3].to_i, "S", m[2]] # squash merge
-    end
-  end.compact
+  pull_requests = pull_requests(merges, gh_url)
 
   puts "Deploy tag %s [%s]" % [to, revision]
   if !commits.empty?
