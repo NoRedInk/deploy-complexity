@@ -1,4 +1,7 @@
 # deploy-complexity
+
+[![Build Status](https://travis-ci.org/NoRedInk/deploy-complexity.svg?branch=master)](https://travis-ci.org/NoRedInk/deploy-complexity)
+
 Analyze the history and complexity of upcoming and past deploys.
 
 Summarize deploys with statistics like number of PR's, commits, and line changes

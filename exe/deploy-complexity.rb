@@ -4,16 +4,11 @@
 require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
-
-# ||||||| THIS SCRIPT'S RUBOCOP RAP SHEET |||||||||
-# resolve these if you can, and try not to add more
-#
-# rubocop:disable Style/FormatStringToken
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/PerceivedComplexity
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/BlockLength
+require 'deploy_complexity/revision_comparator'
+require 'deploy_complexity/changed_files'
+require 'deploy_complexity/changed_elm_packages'
+require 'deploy_complexity/changed_javascript_packages'
+require 'deploy_complexity/changed_ruby_gems'
 
 # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
 def parse_when(tag)
@@ -22,9 +17,7 @@ def parse_when(tag)
   end
 end
 
-PR_FORMAT = "%s/pull/%d %1s %s"
 COMPARE_FORMAT = "%s/compare/%s...%s"
-MIGRATE_FORMAT = "%s/blob/%s/db/migrate/%s"
 
 def time_between_deploys(from, to)
   deploy_time = parse_when(to)
@@ -57,6 +50,44 @@ def reference(name)
   end
 end
 
+def pull_requests(merges, gh_url)
+  prs = merges.map do |line|
+    line.match(/pull request #(\d+) from (.*)$/) do |m|
+      [gh_url, m[1].to_i, "-", safe_name(m[2])]
+    end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
+      [gh_url, m[3].to_i, "S", m[2]] # squash merge
+    end
+  end
+  prs.compact.map { |x| "%s/pull/%d %1s %s" % x }
+end
+
+def list_migrations(changed_files)
+  migrations = changed_files.migrations
+  return unless migrations.any?
+
+  puts "Migrations:"
+  puts migrations
+  puts
+end
+
+def file_changes(changed_files, base:, to:)
+  list_migrations(changed_files)
+
+  RevisionComparator.new(
+    ChangedElmPackages, changed_files.elm_packages, base, to
+  ).output("Changed Elm packages:")
+
+  RevisionComparator.new(
+    ChangedRubyGems, changed_files.ruby_dependencies, base, to
+  ).output("Ruby dependency changes:")
+
+  RevisionComparator.new(
+    ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
+  ).output("Javascript Dependency Changes:")
+
+  # TODO: scan for changes to app/jobs and report changes to params
+end
+
 # deploys are the delta from base -> to, so to contains commits to add to base
 def deploy(base, to, options)
   gh_url = options[:gh_url]
@@ -74,25 +105,15 @@ def deploy(base, to, options)
   merges = commits.grep(/Merges|\#\d+/)
 
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
-  migrations = shortstat.grep(/migrate/).map do |line|
-    line.match(%r{db/migrate/(.*)$}) do |m|
-      MIGRATE_FORMAT % [gh_url, safe_name(to), m[1]]
-    end
-  end
-  # TODO: scan for changes to app/jobs and report changes to params
+  names_only = `git diff --name-only #{range}`
+  versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
   # and possibly per PR, or classify frontend, backend, spec changes
   stat = `git diff --stat #{range}` if stat
 
-  pull_requests = merges.map do |line|
-    line.match(/pull request #(\d+) from (.*)$/) do |m|
-      PR_FORMAT % [gh_url, m[1].to_i, "-", safe_name(m[2])]
-    end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
-      PR_FORMAT % [gh_url, m[3].to_i, "S", m[2]] # squash merge
-    end
-  end.compact
+  pull_requests = pull_requests(merges, gh_url)
 
   puts "Deploy tag %s [%s]" % [to, revision]
   if !commits.empty?
@@ -100,7 +121,8 @@ def deploy(base, to, options)
          [pull_requests.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
-    puts "Migrations:", migrations if migrations.any?
+    puts
+    file_changes(ChangedFiles.new(names_only, versioned_url), base: base, to: to)
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
       puts "Pull Requests:", pull_requests
