@@ -17,7 +17,6 @@ def parse_when(tag)
   end
 end
 
-PR_FORMAT = "%s/pull/%d %1s %s"
 COMPARE_FORMAT = "%s/compare/%s...%s"
 
 def time_between_deploys(from, to)
@@ -52,13 +51,14 @@ def reference(name)
 end
 
 def pull_requests(merges, gh_url)
-  merges.map do |line|
+  prs = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
-      PR_FORMAT % [gh_url, m[1].to_i, "-", safe_name(m[2])]
+      [gh_url, m[1].to_i, "-", safe_name(m[2])]
     end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
-      PR_FORMAT % [gh_url, m[3].to_i, "S", m[2]] # squash merge
+      [gh_url, m[3].to_i, "S", m[2]] # squash merge
     end
-  end.compact
+  end
+  prs.compact.map { |x| "%s/pull/%d %1s %s" % x }
 end
 
 def list_migrations(changed_files)
