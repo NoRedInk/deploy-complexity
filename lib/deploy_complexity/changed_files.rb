@@ -15,10 +15,14 @@ class ChangedFiles
   end
 
   def elm_packages
-    @names.grep(%r{(^|/)elm.json$}).map(&:chomp)
+    @names.grep(%r{(^|/)elm\.json$}).map(&:chomp)
   end
 
   def ruby_dependencies
-    @names.grep(/^Gemfile.lock$/).map(&:chomp)
+    @names.grep(/^Gemfile\.lock$/).map(&:chomp)
+  end
+
+  def javascript_dependencies
+    @names.grep(/^package-lock\.json$/).map(&:chomp)
   end
 end
