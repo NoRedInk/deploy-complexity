@@ -50,6 +50,27 @@ def reference(name)
   end
 end
 
+def format_header(to:, revision:)
+  "*Deploy tag #{to} [#{revision}]*"
+end
+
+def format_summary_stats(commits:, pull_requests:, merges:, time_delta:, shortstat:)
+  return if commits.empty?
+
+  summary_stats = "%d pull requests of %d merges, %d commits %s\n" %
+                  [pull_requests.count, merges.count, commits.count, time_delta]
+
+  return summary_stats if shortstat.empty?
+
+  summary_stats + shortstat.first.strip
+end
+
+def format_compare_url(commits:, base:, to:, gh_url:)
+  return if commits.empty?
+
+  COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
+end
+
 def pull_requests(merges, gh_url)
   prs = merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
@@ -115,26 +136,41 @@ def deploy(base, to, options)
 
   pull_requests = pull_requests(merges, gh_url)
 
-  puts "Deploy tag %s [%s]" % [to, revision]
-  if !commits.empty?
-    puts "%d pull requests of %d merges, %d commits %s" %
-         [pull_requests.count, merges.count, commits.count, time_delta]
-    puts shortstat.first.strip unless shortstat.empty?
-    puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
-    puts
-    file_changes(ChangedFiles.new(names_only, versioned_url), base: base, to: to)
-    if pull_requests.any?
-      # FIXME: there may be commits in the deploy unassociated with a PR
-      puts "Pull Requests:", pull_requests
-    else
-      puts "Commits:", commits
-    end
-    puts "Dirstats:", dirstat if dirstat
-    puts "Stats:", stat if stat
-  else
-    puts "redeployed %s %s" % [base, time_delta]
-  end
-  puts
+  # if !commits.empty?
+  #   puts "%d pull requests of %d merges, %d commits %s" %
+  #        [pull_requests.count, merges.count, commits.count, time_delta]
+  #   puts shortstat.first.strip unless shortstat.empty?
+  #   puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
+  #   list_migrations(changed_files)
+  #   list_changed_elm_dependencies(changed_files, base: base, to: to)
+  #   list_changed_javascript_dependencies(changed_files, base: base, to: to)
+  #   list_changed_ruby_dependencies(changed_files, base: base, to: to)
+  #   if pull_requests.any?
+  #     # FIXME: there may be commits in the deploy unassociated with a PR
+  #     puts "Pull Requests:", pull_requests
+  #   else
+  #     puts "Commits:", commits
+  #   end
+  #   puts "Dirstats:", dirstat if dirstat
+  #   puts "Stats:", stat if stat
+  # else
+  #   puts "redeployed %s %s" % [base, time_delta]
+  # end
+  # puts
+
+  text = [
+    format_header(to: to, revision: revision),
+    format_summary_stats(
+      commits: commits,
+      pull_requests: pull_requests,
+      merges: merges,
+      shortstat: shortstat,
+      time_delta: time_delta
+    ),
+    format_compare_url(commits: commits, base: base, to: to, gh_url: gh_url)
+  ].compact.join("\n")
+
+  puts text
 end
 
 branch = "production"
