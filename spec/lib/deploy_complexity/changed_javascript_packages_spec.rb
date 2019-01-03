@@ -32,6 +32,7 @@ describe ChangedJavascriptPackages do
   end
   subject(:changed_javascript_packages) do
     ChangedJavascriptPackages.new(
+      file: "file_path",
       old: old,
       new: new
     )
@@ -76,9 +77,9 @@ describe ChangedJavascriptPackages do
       it "formats the changes" do
         expect(changed_javascript_packages.changes).to eq(
           [
-            "Added @rhubarb/pie: 3.1.4",
-            "Removed @blueberry/pie: 3.1.4",
-            "Updated @blackberry/pie: 3.1.4 -> 3.1.5"
+            "Added @rhubarb/pie: 3.1.4 (file_path)",
+            "Removed @blueberry/pie: 3.1.4 (file_path)",
+            "Updated @blackberry/pie: 3.1.4 -> 3.1.5 (file_path)"
           ]
         )
       end

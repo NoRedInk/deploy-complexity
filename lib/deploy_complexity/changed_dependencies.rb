@@ -4,7 +4,8 @@
 # This is the parent class - each type of dependency file should implement
 # it's own version of this. See changed_javascript_packages.rb for an example.
 class ChangedDependencies
-  def initialize(old:, new:)
+  def initialize(file:, old:, new:)
+    @file = file
     @old_dependencies = parse_dependencies(old)
     @new_dependencies = parse_dependencies(new)
   end
@@ -48,13 +49,13 @@ class ChangedDependencies
 
   def format_dependencies(label, dependencies)
     dependencies.map do |(package, version)|
-      "#{label} #{package}: #{version}"
+      "#{label} #{package}: #{version} (#{@file})"
     end
   end
 
   def format_updated_dependencies(dependencies)
     dependencies.map do |(package, versions)|
-      "Updated #{package}: #{versions.fetch(:old)} -> #{versions.fetch(:new)}"
+      "Updated #{package}: #{versions.fetch(:old)} -> #{versions.fetch(:new)} (#{@file})"
     end
   end
 end

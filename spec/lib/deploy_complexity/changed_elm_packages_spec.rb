@@ -28,6 +28,7 @@ describe ChangedElmPackages do
 
   subject(:changed_elm_packages) do
     ChangedElmPackages.new(
+      file: "file_path",
       old: old,
       new: new
     )
@@ -68,10 +69,10 @@ describe ChangedElmPackages do
       it "formats the changes" do
         expect(changed_elm_packages.changes).to eq(
           [
-            "Added elm/time: 1.0.0",
-            "Added elm-explorations/test: 1.2.0",
-            "Removed elm/core: 1.0.2",
-            "Updated elm/json: 1.1.2 -> 1.2.2"
+            "Added elm/time: 1.0.0 (file_path)",
+            "Added elm-explorations/test: 1.2.0 (file_path)",
+            "Removed elm/core: 1.0.2 (file_path)",
+            "Updated elm/json: 1.1.2 -> 1.2.2 (file_path)"
           ]
         )
       end

@@ -13,7 +13,7 @@ class RevisionComparator
     @files.inject([]) do |changes, file|
       old = `git show #{@base}:#{file}`
       new = `git show #{@to}:#{file}`
-      packages = @parser.new(old: old, new: new)
+      packages = @parser.new(file: file, old: old, new: new)
       changes + packages.changes
     end
   end

@@ -10,6 +10,7 @@ describe ChangedRubyGems do
 
   subject(:changed_ruby_gems) do
     ChangedRubyGems.new(
+      file: "file_path",
       old: old,
       new: new
     )
@@ -29,11 +30,11 @@ describe ChangedRubyGems do
       it "formats the changes" do
         expect(changed_ruby_gems.changes).to eq(
           [
-            "Added deploy-complexity: 0.4.0",
-            "Added rake: 10.5.0",
-            "Removed pry-doc: 0.13.5",
-            "Updated babadook: 1.0.0 -> 1.0.0 (GIT https://github.com/notrubygems.git bbbb)",
-            "Updated pry: 0.12.2 -> 0.12.3"
+            "Added deploy-complexity: 0.4.0 (file_path)",
+            "Added rake: 10.5.0 (file_path)",
+            "Removed pry-doc: 0.13.5 (file_path)",
+            "Updated babadook: 1.0.0 -> 1.0.0 (GIT https://github.com/notrubygems.git bbbb) (file_path)",
+            "Updated pry: 0.12.2 -> 0.12.3 (file_path)"
           ]
         )
       end
