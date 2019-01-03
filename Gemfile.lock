@@ -57,6 +57,7 @@ GEM
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
+    slack-notifier (2.3.2)
     unicode-display_width (1.4.0)
     yard (0.9.16)
 
@@ -72,6 +73,7 @@ DEPENDENCIES
   rspec
   rspec-mocks
   rubocop
+  slack-notifier
 
 BUNDLED WITH
    1.17.1

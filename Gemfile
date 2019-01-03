@@ -9,6 +9,10 @@ gem 'pry'
 gem 'pry-doc'
 gem 'rubocop'
 
+group :development do
+  gem 'slack-notifier'
+end
+
 group :test do
   gem 'rspec'
   gem 'rspec-mocks'
