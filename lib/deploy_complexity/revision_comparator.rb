@@ -25,5 +25,10 @@ class RevisionComparator
     puts title
     puts packages
     puts
+  rescue StandardError => e
+    puts "Error parsing: #{title}"
+    puts e.message
+    puts e.backtrace
+    puts
   end
 end
