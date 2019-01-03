@@ -130,6 +130,7 @@ def deploy(base, to, options)
          [pull_requests.count, merges.count, commits.count, time_delta]
     puts shortstat.first.strip unless shortstat.empty?
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
+    puts
     list_migrations(changed_files)
     list_changed_elm_dependencies(changed_files, base: base, to: to)
     list_changed_javascript_dependencies(changed_files, base: base, to: to)
