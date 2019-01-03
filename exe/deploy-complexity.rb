@@ -4,6 +4,7 @@
 require 'time'
 require 'bundler/setup'
 require 'deploy_complexity/version'
+require 'deploy_complexity/revision_comparator'
 require 'deploy_complexity/changed_files'
 require 'deploy_complexity/changed_elm_packages'
 require 'deploy_complexity/changed_javascript_packages'
@@ -70,53 +71,38 @@ def list_migrations(changed_files)
 end
 
 def list_changed_elm_dependencies(changed_files, base:, to:)
-  changed_elm_package_files = changed_files.elm_packages
-  return unless changed_elm_package_files.any?
-
-  changed_elm_packages = changed_elm_package_files.inject([]) do |changes, elm_package_file|
-    old_elm_package = `git show #{base}:#{elm_package_file}`
-    new_elm_package = `git show #{to}:#{elm_package_file}`
-    elm_packages = ChangedElmPackages.new(old: old_elm_package, new: new_elm_package)
-    changes + elm_packages.changes
-  end
+  packages = RevisionComparator.new(
+    ChangedElmPackages, changed_files.elm_packages, base, to
+  ).packages
+  return unless packages.any?
 
   puts
   puts "Changed Elm packages:"
-  puts changed_elm_packages
+  puts packages
   puts
 end
 
 def list_changed_ruby_dependencies(changed_files, base:, to:)
-  changed_ruby_dependency_files = changed_files.ruby_dependencies
-  return unless changed_ruby_dependency_files.any?
-
-  changed_ruby_dependencies = changed_ruby_dependency_files.inject([]) do |changes, ruby_dependency_file|
-    old_gemfile_lock = `git show #{base}:#{ruby_dependency_file}`
-    new_gemfile_lock = `git show #{to}:#{ruby_dependency_file}`
-    ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
-    changes + ruby_gems.changes
-  end
+  packages = RevisionComparator.new(
+    ChangedRubyGems, changed_files.ruby_dependencies, base, to
+  ).packages
+  return unless packages.any?
 
   puts
   puts "Ruby dependency changes:"
-  puts changed_ruby_dependencies
+  puts packages
   puts
 end
 
 def list_changed_javascript_dependencies(changed_files, base:, to:)
-  changed_javascript_dependency_files = changed_files.javascript_dependencies
-  return unless changed_javascript_dependency_files.any?
-
-  changed_javascript_dependencies = changed_javascript_dependency_files.inject([]) do |changes, file|
-    old_gemfile_lock = `git show #{base}:#{file}`
-    new_gemfile_lock = `git show #{to}:#{file}`
-    javascript_dependencies = ChangedJavascriptPackages.new(old: old_gemfile_lock, new: new_gemfile_lock)
-    changes + javascript_dependencies.changes
-  end
+  packages = RevisionComparator.new(
+    ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
+  ).packages
+  return unless packages.any?
 
   puts
   puts "Javascript Dependency Changes:"
-  puts changed_javascript_dependencies
+  puts packages
   puts
 end
 
