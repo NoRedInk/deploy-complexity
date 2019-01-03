@@ -87,10 +87,10 @@ def list_changed_elm_dependencies(changed_files, base:, to:)
 end
 
 def list_changed_ruby_dependencies(changed_files, base:, to:)
-  changed_ruby_dependencies = changed_files.ruby_dependencies
-  return unless changed_ruby_dependencies.any?
+  changed_ruby_dependency_files = changed_files.ruby_dependencies
+  return unless changed_ruby_dependency_files.any?
 
-  changed_ruby_dependencies = changed_ruby_dependencies.inject([]) do |changes, ruby_dependency_file|
+  changed_ruby_dependencies = changed_ruby_dependency_files.inject([]) do |changes, ruby_dependency_file|
     old_gemfile_lock = `git show #{base}:#{ruby_dependency_file}`
     new_gemfile_lock = `git show #{to}:#{ruby_dependency_file}`
     ruby_gems = ChangedRubyGems.new(old: old_gemfile_lock, new: new_gemfile_lock)
@@ -100,6 +100,23 @@ def list_changed_ruby_dependencies(changed_files, base:, to:)
   puts
   puts "Ruby dependency changes:"
   puts changed_ruby_dependencies
+  puts
+end
+
+def list_changed_javascript_dependencies(changed_files, base:, to:)
+  changed_javascript_dependency_files = changed_files.javascript_dependencies
+  return unless changed_javascript_dependency_files.any?
+
+  changed_javascript_dependencies = changed_javascript_dependency_files.inject([]) do |changes, file|
+    old_gemfile_lock = `git show #{base}:#{file}`
+    new_gemfile_lock = `git show #{to}:#{file}`
+    javascript_dependencies = ChangedJavascriptPackages.new(old: old_gemfile_lock, new: new_gemfile_lock)
+    changes + javascript_dependencies.changes
+  end
+
+  puts
+  puts "Javascript Dependency Changes:"
+  puts changed_javascript_dependencies
   puts
 end
 
@@ -124,11 +141,6 @@ def deploy(base, to, options)
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
   changed_files = ChangedFiles.new(names_only, versioned_url)
 
-  old_package_lock = `git show #{base}:package-lock.json`
-  new_package_lock = `git show #{to}:package-lock.json`
-  javascript_packages = ChangedJavascriptPackages.new(old: old_package_lock, new: new_package_lock)
-  changed_javascript_packages = javascript_packages.changes
-
   # TODO: scan for changes to app/jobs and report changes to params
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
@@ -152,7 +164,7 @@ def deploy(base, to, options)
     puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
     list_migrations(changed_files)
     list_changed_elm_dependencies(changed_files, base: base, to: to)
-    puts "JavaScript dependency changes:", changed_javascript_packages if changed_javascript_packages.any?
+    list_changed_javascript_dependencies(changed_files, base: base, to: to)
     list_changed_ruby_dependencies(changed_files, base: base, to: to)
     if pull_requests.any?
       # FIXME: there may be commits in the deploy unassociated with a PR
