@@ -222,10 +222,3 @@ when "diff"
 else
   abort(optparse.to_s)
 end
-
-# rubocop:enable Style/FormatStringToken
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/CyclomaticComplexity
-# rubocop:enable Metrics/PerceivedComplexity
-# rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/BlockLength
