@@ -3,7 +3,7 @@
 
 require 'time'
 require 'bundler/setup'
-require 'deploy_complexity/slack_formatter'
+require 'deploy_complexity/output_formatter'
 require 'deploy_complexity/version'
 require 'deploy_complexity/revision_comparator'
 require 'deploy_complexity/changed_files'
@@ -94,6 +94,7 @@ def deploy(base, to, options)
   gh_url = options[:gh_url]
   dirstat = options[:dirstat]
   stat = options[:stat]
+  slack_format = options[:slack_format]
 
   range = "#{base}...#{to}"
 
@@ -138,7 +139,7 @@ def deploy(base, to, options)
   # end
   # puts
 
-  formatter = SlackFormatter.with(
+  formatter = DeployComplexity::OutputFormatter.with(
     to: to,
     base: base,
     revision: revision,
@@ -150,7 +151,11 @@ def deploy(base, to, options)
     gh_url: gh_url
   )
 
-  puts formatter.format
+  if slack_format
+    puts formatter.format_for_slack
+  else
+    puts formatter.format_for_cli
+  end
 end
 
 branch = "production"
@@ -183,6 +188,8 @@ optparse = OptionParser.new do |opts|
           "Github project url to construct links from") do |url|
     options[:gh_url] = url
   end
+  opts.on("--slack-format",
+          "Format output for Slack") { options[:slack_format] = true }
   opts.on_tail("-v", "--version", "Show version info and exit") do
     abort <<~BOILERPLATE
       deploy-complexity.rb #{DeployComplexity::VERSION}
