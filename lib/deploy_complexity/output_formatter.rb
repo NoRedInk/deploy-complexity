@@ -30,7 +30,10 @@ module DeployComplexity
         text << shortstats
       end
 
-      text.compact.join("\n")
+      {
+        text: text.compact.join("\n"),
+        attachments: []
+      }
     end
 
     def format_for_cli
