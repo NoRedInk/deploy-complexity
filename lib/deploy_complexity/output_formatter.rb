@@ -16,11 +16,14 @@ module DeployComplexity
       :merges,
       :shortstat,
       :time_delta,
-      :gh_url
+      :gh_url,
+      :migrations
     )
 
+    # TODO: consider moving slack/cli formatting to separate child classes
     def format_for_slack
       text = []
+      attachments = []
 
       text << "*#{header}*"
 
@@ -30,11 +33,12 @@ module DeployComplexity
         text << summary_stats
         text << compare_url
         text << shortstats
+        attachments << format_migrations_for_slack if migrations.any?
       end
 
       {
         text: text.compact.join("\n"),
-        attachments: []
+        attachments: attachments
       }
     end
 
@@ -49,6 +53,8 @@ module DeployComplexity
         text << summary_stats
         text << compare_url
         text << shortstats
+        text << shortstats
+        text << format_migrations_for_cli if migrations.any?
       end
 
       text.compact.join("\n")
@@ -79,6 +85,20 @@ module DeployComplexity
 
     def compare_url
       "%s/compare/%s...%s" % [gh_url, base_reference, to_reference]
+    end
+
+    def format_migrations_for_slack
+      {
+        title: "Migrations",
+        text: migrations.join("\n"),
+        color: "#E6E6FA"
+      }
+    end
+
+    def format_migrations_for_cli
+      text = "Migrations:\n"
+
+      text + migrations.join("\n")
     end
   end
 end

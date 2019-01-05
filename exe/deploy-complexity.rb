@@ -62,15 +62,6 @@ def pull_requests(merges, gh_url)
   prs.compact.map { |x| "%s/pull/%d %1s %s" % x }
 end
 
-def list_migrations(changed_files)
-  migrations = changed_files.migrations
-  return unless migrations.any?
-
-  puts "Migrations:"
-  puts migrations
-  puts
-end
-
 def file_changes(changed_files, base:, to:)
   list_migrations(changed_files)
 
@@ -109,6 +100,7 @@ def deploy(base, to, options)
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   names_only = `git diff --name-only #{range}`
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
+  changed_files = ChangedFiles.new(names_only, versioned_url)
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
@@ -150,7 +142,8 @@ def deploy(base, to, options)
     time_delta: time_delta,
     gh_url: gh_url,
     base_reference: reference(base),
-    to_reference: reference(to)
+    to_reference: reference(to),
+    migrations: changed_files.migrations
   )
 
   if slack_format

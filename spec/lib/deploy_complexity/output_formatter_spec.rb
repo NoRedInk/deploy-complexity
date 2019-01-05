@@ -16,7 +16,8 @@ describe DeployComplexity::OutputFormatter do
         time_delta: "0 nanoseconds",
         gh_url: "example.com",
         base_reference: "base_ref",
-        to_reference: "to_ref"
+        to_reference: "to_ref",
+        migrations: []
       )
     end
 
@@ -50,7 +51,11 @@ describe DeployComplexity::OutputFormatter do
         time_delta: "0 nanoseconds",
         gh_url: "example.com",
         base_reference: "base_ref",
-        to_reference: "to_ref"
+        to_reference: "to_ref",
+        migrations: [
+          "example.com/migrate_awayyyy",
+          "example.com/migrate_awayyyy_again"
+        ]
       )
     end
 
@@ -59,6 +64,10 @@ describe DeployComplexity::OutputFormatter do
         Deploy tag to_commit [aaaa]
         0 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
+
+        Migrations:
+        example.com/migrate_awayyyy
+        example.com/migrate_awayyyy_again
       TXT
     end
 
@@ -69,7 +78,16 @@ describe DeployComplexity::OutputFormatter do
         0 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
         TXT
-        attachments: []
+        attachments: [
+          {
+            title: "Migrations",
+            text: <<-TXT.gsub(/^\s+/, "").chomp,
+              example.com/migrate_awayyyy
+              example.com/migrate_awayyyy_again
+            TXT
+            color: "#E6E6FA"
+          }
+        ]
       )
     end
   end
