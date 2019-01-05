@@ -148,7 +148,9 @@ def deploy(base, to, options)
     merges: merges,
     shortstat: shortstat,
     time_delta: time_delta,
-    gh_url: gh_url
+    gh_url: gh_url,
+    base_reference: reference(base),
+    to_reference: reference(to)
   )
 
   if slack_format

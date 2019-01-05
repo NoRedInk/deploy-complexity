@@ -8,6 +8,8 @@ module DeployComplexity
     Value.new(
       :to,
       :base,
+      :base_reference,
+      :to_reference,
       :revision,
       :commits,
       :pull_requests,
@@ -56,7 +58,9 @@ module DeployComplexity
 
     attr_reader :deploy_data
 
-    def empty_commit_message; end
+    def empty_commit_message
+      "redeployed %s %s" % [base, time_delta]
+    end
 
     def header
       "Deploy tag #{to} [#{revision}]"
@@ -74,7 +78,7 @@ module DeployComplexity
     end
 
     def compare_url
-      "%s/compare/%s...%s" % [gh_url, reference(base), reference(to)]
+      "%s/compare/%s...%s" % [gh_url, base_reference, to_reference]
     end
   end
 end
