@@ -63,12 +63,6 @@ def pull_requests(merges, gh_url)
 end
 
 def file_changes(changed_files, base:, to:)
-  list_migrations(changed_files)
-
-  RevisionComparator.new(
-    ChangedElmPackages, changed_files.elm_packages, base, to
-  ).output("Changed Elm packages:")
-
   RevisionComparator.new(
     ChangedRubyGems, changed_files.ruby_dependencies, base, to
   ).output("Ruby dependency changes:")
@@ -143,7 +137,10 @@ def deploy(base, to, options)
     gh_url: gh_url,
     base_reference: reference(base),
     to_reference: reference(to),
-    migrations: changed_files.migrations
+    migrations: changed_files.migrations,
+    elm_packages: RevisionComparator.new(
+      ChangedElmPackages, changed_files.elm_packages, base, to
+    ).output
   )
 
   if slack_format

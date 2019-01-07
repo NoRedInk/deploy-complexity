@@ -3,6 +3,8 @@
 require 'values'
 
 module DeployComplexity
+  Attachment = Value.new(:title, :text, :color)
+
   # Formats deploy complexity output
   class OutputFormatter <
     Value.new(
@@ -17,32 +19,33 @@ module DeployComplexity
       :shortstat,
       :time_delta,
       :gh_url,
-      :migrations
+      :migrations,
+      :elm_packages
     )
 
-    # TODO: consider moving slack/cli formatting to separate child classes
     def format_for_slack
-      text = []
-      attachments = []
-
-      text << "*#{header}*"
-
-      if commits.empty?
-        text << empty_commit_message
-      else
-        text << summary_stats
-        text << compare_url
-        text << shortstats
-        attachments << format_migrations_for_slack if migrations.any?
-      end
-
       {
         text: text.compact.join("\n"),
-        attachments: attachments
+        attachments: attachments.map { |a| format_attachment_for_slack(a) }
       }
     end
 
     def format_for_cli
+      output = text.compact.join("\n")
+
+      added_attachments = attachments
+
+      return output unless added_attachments.any?
+
+      output + "\n" +
+        added_attachments.map { |a| format_attachment_for_cli(a) }.join("\n")
+    end
+
+    private
+
+    attr_reader :deploy_data
+
+    def text
       text = []
 
       text << header
@@ -53,23 +56,36 @@ module DeployComplexity
         text << summary_stats
         text << compare_url
         text << shortstats
-        text << shortstats
-        text << format_migrations_for_cli if migrations.any?
       end
 
-      text.compact.join("\n")
+      text
     end
 
-    private
+    def attachments
+      return [] if commits.empty?
 
-    attr_reader :deploy_data
+      attachments = []
+
+      attachments << migration_attachment if migrations.any?
+      attachments << elm_package_attachment if elm_packages.any?
+
+      attachments
+    end
+
+    def format_attachment_for_slack(attachment)
+      attachment.to_h
+    end
+
+    def format_attachment_for_cli(attachment)
+      attachment.title + "\n" + attachment.text
+    end
 
     def empty_commit_message
       "redeployed %s %s" % [base, time_delta]
     end
 
     def header
-      "Deploy tag #{to} [#{revision}]"
+      "*Deploy tag #{to} [#{revision}]*"
     end
 
     def summary_stats
@@ -87,18 +103,20 @@ module DeployComplexity
       "%s/compare/%s...%s" % [gh_url, base_reference, to_reference]
     end
 
-    def format_migrations_for_slack
-      {
+    def migration_attachment
+      Attachment.with(
         title: "Migrations",
         text: migrations.join("\n"),
         color: "#E6E6FA"
-      }
+      )
     end
 
-    def format_migrations_for_cli
-      text = "Migrations:\n"
-
-      text + migrations.join("\n")
+    def elm_package_attachment
+      Attachment.with(
+        title: "Changed Elm Packages",
+        text: elm_packages.join("\n"),
+        color: "#FFB6C1"
+      )
     end
   end
 end

@@ -22,17 +22,12 @@ class RevisionComparator
     end
   end
 
-  def output(title)
-    packages = changes
-    return unless packages.any?
-
-    puts title
-    puts packages
-    puts
-  rescue StandardError => e
-    puts "Error parsing: #{title}"
-    puts e.message
-    puts e.backtrace
-    puts
+  def output
+    changes
+    # TODO: bring back error handling
+    # rescue StandardError => e
+    #   puts "Error parsing: #{title}"
+    #   puts e.message
+    #   puts e.backtrace
   end
 end

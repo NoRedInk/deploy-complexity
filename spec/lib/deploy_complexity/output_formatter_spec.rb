@@ -17,13 +17,14 @@ describe DeployComplexity::OutputFormatter do
         gh_url: "example.com",
         base_reference: "base_ref",
         to_reference: "to_ref",
-        migrations: []
+        migrations: [],
+        elm_packages: []
       )
     end
 
     it "formats for the CLI" do
       expect(formatter.format_for_cli).to eq(
-        "Deploy tag to_commit [aaaa]\nredeployed base_commit 0 nanoseconds"
+        "*Deploy tag to_commit [aaaa]*\nredeployed base_commit 0 nanoseconds"
       )
     end
 
@@ -55,19 +56,25 @@ describe DeployComplexity::OutputFormatter do
         migrations: [
           "example.com/migrate_awayyyy",
           "example.com/migrate_awayyyy_again"
+        ],
+        elm_packages: [
+          "elm/core: 1.1.0 -> 1.2.0"
         ]
       )
     end
 
     it "formats for the CLI" do
       expect(formatter.format_for_cli).to eq(<<-TXT.gsub(/^\s+/, "").chomp)
-        Deploy tag to_commit [aaaa]
+        *Deploy tag to_commit [aaaa]*
         0 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
 
-        Migrations:
+        Migrations
         example.com/migrate_awayyyy
         example.com/migrate_awayyyy_again
+
+        Changed Elm Packages
+        elm/core: 1.1.0 -> 1.2.0
       TXT
     end
 
@@ -86,6 +93,13 @@ describe DeployComplexity::OutputFormatter do
               example.com/migrate_awayyyy_again
             TXT
             color: "#E6E6FA"
+          },
+          {
+            title: "Changed Elm Packages",
+            text: <<-TXT.gsub(/^\s+/, "").chomp,
+              elm/core: 1.1.0 -> 1.2.0
+            TXT
+            color: "#FFB6C1"
           }
         ]
       )
