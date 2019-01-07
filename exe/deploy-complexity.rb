@@ -122,6 +122,8 @@ def deploy(base, to, options)
     pull_requests: pull_requests,
     merges: merges,
     shortstat: shortstat,
+    dirstat: dirstat,
+    stat: stat,
     time_delta: time_delta,
     gh_url: gh_url,
     base_reference: reference(base),

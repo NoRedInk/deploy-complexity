@@ -17,6 +17,8 @@ module DeployComplexity
       :pull_requests,
       :merges,
       :shortstat,
+      :dirstat,
+      :stat,
       :time_delta,
       :gh_url,
       :migrations,
@@ -75,6 +77,8 @@ module DeployComplexity
       # FIXME: there may be commits in the deploy unassociated with a PR
       content_attachment = pull_requests.any? ? pull_request_attachment : commits_attachment
       attachments << content_attachment
+      attachments << dirstat_attachment if dirstat
+      attachments << stat_attachment if stat
 
       attachments
     end
@@ -155,6 +159,22 @@ module DeployComplexity
         title: "Commits",
         text: commits.join("\n"),
         color: "#FFCCB6"
+      )
+    end
+
+    def stat_attachment
+      Attachment.with(
+        title: "Stats",
+        text: stat,
+        color: "#D6B6FF"
+      )
+    end
+
+    def dirstat_attachment
+      Attachment.with(
+        title: "Dirstats",
+        text: dirstat,
+        color: "#B6D8FF"
       )
     end
   end
