@@ -10,6 +10,18 @@ module DeployComplexity
       @to = to
     end
 
+    # return [Array<String>] Should return an array of strings, even if there is a parsing error
+    def output
+      changes
+    rescue StandardError => e
+      [
+        e.message,
+        e.backtrace.join("/n")
+      ]
+    end
+
+    private
+
     def source(revision, file)
       `git show #{revision}:#{file}`
     end
@@ -21,15 +33,6 @@ module DeployComplexity
         packages = @parser.new(file: file, old: old, new: new)
         changes + packages.changes
       end
-    end
-
-    def output
-      changes
-      # TODO: bring back error handling
-      # rescue StandardError => e
-      #   puts "Error parsing: #{title}"
-      #   puts e.message
-      #   puts e.backtrace
     end
   end
 end
