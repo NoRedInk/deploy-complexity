@@ -20,7 +20,8 @@ module DeployComplexity
       :time_delta,
       :gh_url,
       :migrations,
-      :elm_packages
+      :elm_packages,
+      :ruby_dependencies
     )
 
     def format_for_slack
@@ -68,6 +69,7 @@ module DeployComplexity
 
       attachments << migration_attachment if migrations.any?
       attachments << elm_package_attachment if elm_packages.any?
+      attachments << ruby_dependency_attachment if ruby_dependencies.any?
 
       attachments
     end
@@ -116,6 +118,14 @@ module DeployComplexity
         title: "Changed Elm Packages",
         text: elm_packages.join("\n"),
         color: "#FFB6C1"
+      )
+    end
+
+    def ruby_dependency_attachment
+      Attachment.with(
+        title: "Changed Ruby Dependencies",
+        text: ruby_dependencies.join("\n"),
+        color: "#B6FFE0"
       )
     end
   end

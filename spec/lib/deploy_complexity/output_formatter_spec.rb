@@ -18,7 +18,8 @@ describe DeployComplexity::OutputFormatter do
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [],
-        elm_packages: []
+        elm_packages: [],
+        ruby_dependencies: []
       )
     end
 
@@ -59,6 +60,9 @@ describe DeployComplexity::OutputFormatter do
         ],
         elm_packages: [
           "elm/core: 1.1.0 -> 1.2.0"
+        ],
+        ruby_dependencies: [
+          "rspec: 3.1.0 -> 3.2.0"
         ]
       )
     end
@@ -75,6 +79,9 @@ describe DeployComplexity::OutputFormatter do
 
         Changed Elm Packages
         elm/core: 1.1.0 -> 1.2.0
+
+        Changed Ruby Dependencies
+        rspec: 3.1.0 -> 3.2.0
       TXT
     end
 
@@ -100,6 +107,13 @@ describe DeployComplexity::OutputFormatter do
               elm/core: 1.1.0 -> 1.2.0
             TXT
             color: "#FFB6C1"
+          },
+          {
+            title: "Changed Ruby Dependencies",
+            text: <<-TXT.gsub(/^\s+/, "").chomp,
+              rspec: 3.1.0 -> 3.2.0
+            TXT
+            color: "#B6FFE0"
           }
         ]
       )

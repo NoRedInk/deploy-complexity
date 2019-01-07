@@ -64,10 +64,6 @@ end
 
 def file_changes(changed_files, base:, to:)
   RevisionComparator.new(
-    ChangedRubyGems, changed_files.ruby_dependencies, base, to
-  ).output("Ruby dependency changes:")
-
-  RevisionComparator.new(
     ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
   ).output("Javascript Dependency Changes:")
 
@@ -140,6 +136,9 @@ def deploy(base, to, options)
     migrations: changed_files.migrations,
     elm_packages: RevisionComparator.new(
       ChangedElmPackages, changed_files.elm_packages, base, to
+    ).output,
+    ruby_dependencies: RevisionComparator.new(
+      ChangedRubyGems, changed_files.ruby_dependencies, base, to
     ).output
   )
 
