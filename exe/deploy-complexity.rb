@@ -62,14 +62,6 @@ def pull_requests(merges, gh_url)
   prs.compact.map { |x| "%s/pull/%d %1s %s" % x }
 end
 
-def file_changes(changed_files, base:, to:)
-  RevisionComparator.new(
-    ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
-  ).output("Javascript Dependency Changes:")
-
-  # TODO: scan for changes to app/jobs and report changes to params
-end
-
 # deploys are the delta from base -> to, so to contains commits to add to base
 def deploy(base, to, options)
   gh_url = options[:gh_url]
@@ -121,6 +113,7 @@ def deploy(base, to, options)
   # end
   # puts
 
+  # TODO: scan for changes to app/jobs and report changes to params
   formatter = DeployComplexity::OutputFormatter.with(
     to: to,
     base: base,
@@ -139,6 +132,9 @@ def deploy(base, to, options)
     ).output,
     ruby_dependencies: RevisionComparator.new(
       ChangedRubyGems, changed_files.ruby_dependencies, base, to
+    ).output,
+    javascript_dependencies: RevisionComparator.new(
+      ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
     ).output
   )
 

@@ -19,7 +19,8 @@ describe DeployComplexity::OutputFormatter do
         to_reference: "to_ref",
         migrations: [],
         elm_packages: [],
-        ruby_dependencies: []
+        ruby_dependencies: [],
+        javascript_dependencies: []
       )
     end
 
@@ -63,6 +64,9 @@ describe DeployComplexity::OutputFormatter do
         ],
         ruby_dependencies: [
           "rspec: 3.1.0 -> 3.2.0"
+        ],
+        javascript_dependencies: [
+          "clipboard: 0.0.1 -> 0.0.5"
         ]
       )
     end
@@ -82,6 +86,9 @@ describe DeployComplexity::OutputFormatter do
 
         Changed Ruby Dependencies
         rspec: 3.1.0 -> 3.2.0
+
+        Changed JavaScript Dependencies
+        clipboard: 0.0.1 -> 0.0.5
       TXT
     end
 
@@ -114,6 +121,13 @@ describe DeployComplexity::OutputFormatter do
               rspec: 3.1.0 -> 3.2.0
             TXT
             color: "#B6FFE0"
+          },
+          {
+            title: "Changed JavaScript Dependencies",
+            text: <<-TXT.gsub(/^\s+/, "").chomp,
+              clipboard: 0.0.1 -> 0.0.5
+            TXT
+            color: "#B6C6FF"
           }
         ]
       )
