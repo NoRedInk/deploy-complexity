@@ -91,28 +91,6 @@ def deploy(base, to, options)
 
   pull_requests = pull_requests(merges, gh_url)
 
-  # if !commits.empty?
-  #   puts "%d pull requests of %d merges, %d commits %s" %
-  #        [pull_requests.count, merges.count, commits.count, time_delta]
-  #   puts shortstat.first.strip unless shortstat.empty?
-  #   puts COMPARE_FORMAT % [gh_url, reference(base), reference(to)]
-  #   list_migrations(changed_files)
-  #   list_changed_elm_dependencies(changed_files, base: base, to: to)
-  #   list_changed_javascript_dependencies(changed_files, base: base, to: to)
-  #   list_changed_ruby_dependencies(changed_files, base: base, to: to)
-  #   if pull_requests.any?
-  #     # FIXME: there may be commits in the deploy unassociated with a PR
-  #     puts "Pull Requests:", pull_requests
-  #   else
-  #     puts "Commits:", commits
-  #   end
-  #   puts "Dirstats:", dirstat if dirstat
-  #   puts "Stats:", stat if stat
-  # else
-  #   puts "redeployed %s %s" % [base, time_delta]
-  # end
-  # puts
-
   # TODO: scan for changes to app/jobs and report changes to params
   formatter = DeployComplexity::OutputFormatter.with(
     to: to,
