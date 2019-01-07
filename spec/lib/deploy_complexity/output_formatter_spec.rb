@@ -89,6 +89,10 @@ describe DeployComplexity::OutputFormatter do
 
         Changed JavaScript Dependencies
         clipboard: 0.0.1 -> 0.0.5
+
+        Commits
+        bbbb Do the thing
+        cccc Do the thing again
       TXT
     end
 
@@ -128,6 +132,14 @@ describe DeployComplexity::OutputFormatter do
               clipboard: 0.0.1 -> 0.0.5
             TXT
             color: "#B6C6FF"
+          },
+          {
+            title: "Commits",
+            text: <<-TXT.gsub(/^\s+/, "").chomp,
+              bbbb Do the thing
+              cccc Do the thing again
+            TXT
+            color: "#FFCCB6"
           }
         ]
       )

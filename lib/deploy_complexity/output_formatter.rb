@@ -72,6 +72,9 @@ module DeployComplexity
       attachments << elm_package_attachment if elm_packages.any?
       attachments << ruby_dependency_attachment if ruby_dependencies.any?
       attachments << javascript_dependency_attachment if javascript_dependencies.any?
+      # FIXME: there may be commits in the deploy unassociated with a PR
+      content_attachment = pull_requests.any? ? pull_request_attachment : commits_attachment
+      attachments << content_attachment
 
       attachments
     end
@@ -136,6 +139,22 @@ module DeployComplexity
         title: "Changed JavaScript Dependencies",
         text: javascript_dependencies.join("\n"),
         color: "#B6C6FF"
+      )
+    end
+
+    def pull_request_attachment
+      Attachment.with(
+        title: "Pull Requests",
+        text: pull_requests.join("\n"),
+        color: "#FFCCB6"
+      )
+    end
+
+    def commits_attachment
+      Attachment.with(
+        title: "Commits",
+        text: commits.join("\n"),
+        color: "#FFCCB6"
       )
     end
   end
