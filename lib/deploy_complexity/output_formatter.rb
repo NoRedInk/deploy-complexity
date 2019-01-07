@@ -41,8 +41,8 @@ module DeployComplexity
 
       return output unless added_attachments.any?
 
-      output + "\n" +
-        added_attachments.map { |a| format_attachment_for_cli(a) }.join("\n")
+      output + "\n\n" +
+        added_attachments.map { |a| format_attachment_for_cli(a) }.join("\n\n")
     end
 
     private

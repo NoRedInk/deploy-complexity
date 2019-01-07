@@ -76,7 +76,7 @@ describe DeployComplexity::OutputFormatter do
     end
 
     it "formats for the CLI" do
-      expect(formatter.format_for_cli).to eq(<<-TXT.gsub(/^\s+/, "").chomp)
+      expect(formatter.format_for_cli).to eq(<<-TXT.gsub(/^ +/, "").chomp)
         *Deploy tag to_commit [aaaa]*
         0 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
