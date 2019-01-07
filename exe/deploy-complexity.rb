@@ -82,7 +82,7 @@ def deploy(base, to, options)
   shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
   names_only = `git diff --name-only #{range}`
   versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
-  changed_files = ChangedFiles.new(names_only, versioned_url)
+  changed_files = DeployComplexity::ChangedFiles.new(names_only, versioned_url)
 
   dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
   # TODO: investigate summarizing language / spec content based on file suffix,
@@ -107,14 +107,14 @@ def deploy(base, to, options)
     base_reference: reference(base),
     to_reference: reference(to),
     migrations: changed_files.migrations,
-    elm_packages: RevisionComparator.new(
-      ChangedElmPackages, changed_files.elm_packages, base, to
+    elm_packages: DeployComplexity::RevisionComparator.new(
+      DeployComplexity::ChangedElmPackages, changed_files.elm_packages, base, to
     ).output,
-    ruby_dependencies: RevisionComparator.new(
-      ChangedRubyGems, changed_files.ruby_dependencies, base, to
+    ruby_dependencies: DeployComplexity::RevisionComparator.new(
+      DeployComplexity::ChangedRubyGems, changed_files.ruby_dependencies, base, to
     ).output,
-    javascript_dependencies: RevisionComparator.new(
-      ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
+    javascript_dependencies: DeployComplexity::RevisionComparator.new(
+      DeployComplexity::ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
     ).output
   )
 

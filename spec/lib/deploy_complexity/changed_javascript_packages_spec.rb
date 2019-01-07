@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'deploy_complexity/changed_javascript_packages'
 
-describe ChangedJavascriptPackages do
+describe DeployComplexity::ChangedJavascriptPackages do
   let(:old) do
     <<-TXT.gsub(/^\s+/, "")
       {
@@ -31,7 +31,7 @@ describe ChangedJavascriptPackages do
     TXT
   end
   subject(:changed_javascript_packages) do
-    ChangedJavascriptPackages.new(
+    DeployComplexity::ChangedJavascriptPackages.new(
       file: "file_path",
       old: old,
       new: new
