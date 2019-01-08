@@ -35,6 +35,9 @@ module DeployComplexity
 
     attr_reader :deploy_data
 
+    # This should be implemented in child classes
+    def format_attachment(_attachment); end
+
     def text
       text = []
 
