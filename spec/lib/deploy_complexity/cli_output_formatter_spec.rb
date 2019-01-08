@@ -95,7 +95,7 @@ describe DeployComplexity::CliOutputFormatter do
         clipboard: 0.0.1 -> 0.0.5
 
         Pull Requests
-        <example.com/pull/1|1> - add-more-cats
+        example.com/pull/1 - add-more-cats
       TXT
     end
   end

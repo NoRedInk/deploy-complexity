@@ -22,5 +22,17 @@ module DeployComplexity
     def header
       "*#{super}*"
     end
+
+    # Override parent by fancy formatting links
+    def pull_request_attachment
+      Attachment.with(
+        title: "Pull Requests",
+        text: pull_requests.map do |pr|
+          url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
+          "<#{url}|#{pr.fetch(:pr_number)}> - #{pr.fetch(:name)}"
+        end.join("\n"),
+        color: "#FFCCB6"
+      )
+    end
   end
 end

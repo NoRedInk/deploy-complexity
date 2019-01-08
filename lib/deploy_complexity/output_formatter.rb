@@ -129,7 +129,7 @@ module DeployComplexity
         title: "Pull Requests",
         text: pull_requests.map do |pr|
           url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
-          "<#{url}|#{pr.fetch(:pr_number)}> - #{pr.fetch(:name)}"
+          "#{url} #{pr.fetch(:joiner)} #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"
       )
