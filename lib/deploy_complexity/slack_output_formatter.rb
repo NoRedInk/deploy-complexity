@@ -10,6 +10,16 @@ module DeployComplexity
         text: text,
         attachments: attachments.map { |a| format_attachment(a) }
       }
+    rescue StandardError => e
+      {
+        text: "Something went wrong formatting output",
+        attachments: [
+          {
+            title: e.message,
+            text: e.backtrace.join("\n")
+          }
+        ]
+      }
     end
 
     private
