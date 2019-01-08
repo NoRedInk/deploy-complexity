@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'deploy_complexity/output_formatter'
+require 'deploy_complexity/slack_output_formatter'
 
-describe DeployComplexity::OutputFormatter do
+describe DeployComplexity::SlackOutputFormatter do
   context "with no commits" do
     let(:formatter) do
-      DeployComplexity::OutputFormatter.with(
+      DeployComplexity::SlackOutputFormatter.with(
         to: "to_commit",
         base: "base_commit",
         revision: "aaaa",
@@ -26,14 +26,8 @@ describe DeployComplexity::OutputFormatter do
       )
     end
 
-    it "formats for the CLI" do
-      expect(formatter.format_for_cli).to eq(
-        "*Deploy tag to_commit [aaaa]*\nredeployed base_commit 0 nanoseconds"
-      )
-    end
-
     it "formats for Slack" do
-      expect(formatter.format_for_slack).to eq(
+      expect(formatter.format).to eq(
         text: "*Deploy tag to_commit [aaaa]*\nredeployed base_commit 0 nanoseconds",
         attachments: []
       )
@@ -42,7 +36,7 @@ describe DeployComplexity::OutputFormatter do
 
   context "with commits" do
     let(:formatter) do
-      DeployComplexity::OutputFormatter.with(
+      DeployComplexity::SlackOutputFormatter.with(
         to: "to_commit",
         base: "base_commit",
         revision: "aaaa",
@@ -82,32 +76,8 @@ describe DeployComplexity::OutputFormatter do
       )
     end
 
-    it "formats for the CLI" do
-      expect(formatter.format_for_cli).to eq(<<-TXT.gsub(/^ +/, "").chomp)
-        *Deploy tag to_commit [aaaa]*
-        1 pull requests of 0 merges, 2 commits 0 nanoseconds
-        example.com/compare/base_ref...to_ref
-
-        Migrations
-        example.com/migrate_awayyyy
-        example.com/migrate_awayyyy_again
-
-        Changed Elm Packages
-        elm/core: 1.1.0 -> 1.2.0
-
-        Changed Ruby Dependencies
-        rspec: 3.1.0 -> 3.2.0
-
-        Changed JavaScript Dependencies
-        clipboard: 0.0.1 -> 0.0.5
-
-        Pull Requests
-        <example.com/pull/1|1> - add-more-cats
-      TXT
-    end
-
     it "formats for Slack" do
-      expect(formatter.format_for_slack).to eq(
+      expect(formatter.format).to eq(
         text: <<-TXT.gsub(/^\s+/, "").chomp,
         *Deploy tag to_commit [aaaa]*
         1 pull requests of 0 merges, 2 commits 0 nanoseconds

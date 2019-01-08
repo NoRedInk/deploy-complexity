@@ -3,7 +3,8 @@
 
 require 'time'
 require 'bundler/setup'
-require 'deploy_complexity/output_formatter'
+require 'deploy_complexity/slack_output_formatter'
+require 'deploy_complexity/cli_output_formatter'
 require 'deploy_complexity/version'
 require 'deploy_complexity/revision_comparator'
 require 'deploy_complexity/changed_files'
@@ -100,7 +101,7 @@ def deploy(base, to, options)
   stat = `git diff --stat #{range}` if stat
 
   # TODO: scan for changes to app/jobs and report changes to params
-  formatter = DeployComplexity::OutputFormatter.with(
+  formatter_attributes = {
     to: to,
     base: base,
     revision: revision,
@@ -124,13 +125,15 @@ def deploy(base, to, options)
     javascript_dependencies: DeployComplexity::RevisionComparator.new(
       DeployComplexity::ChangedJavascriptPackages, changed_files.javascript_dependencies, base, to
     ).output
-  )
+  }
 
-  if slack_format
-    puts formatter.format_for_slack
-  else
-    puts formatter.format_for_cli
-  end
+  formatter = if slack_format
+                DeployComplexity::SlackOutputFormatter.with(formatter_attributes)
+              else
+                DeployComplexity::CliOutputFormatter.with(formatter_attributes)
+              end
+
+  puts formatter.format
 end
 
 branch = "production"

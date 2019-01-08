@@ -5,7 +5,8 @@ require 'values'
 module DeployComplexity
   Attachment = Value.new(:title, :text, :color)
 
-  # Formats deploy complexity output
+  # Parent class for formatting deploy complexity output
+  # Child classes (slack, cli) should implement #format and #format_attachment
   class OutputFormatter <
     Value.new(
       :to,
@@ -27,23 +28,8 @@ module DeployComplexity
       :javascript_dependencies
     )
 
-    def format_for_slack
-      {
-        text: text,
-        attachments: attachments.map { |a| format_attachment_for_slack(a) }
-      }
-    end
-
-    def format_for_cli
-      output = text
-
-      added_attachments = attachments
-
-      return output unless added_attachments.any?
-
-      output + "\n\n" +
-        added_attachments.map { |a| format_attachment_for_cli(a) }.join("\n\n")
-    end
+    # This should be implemented in child classes and be the final output
+    def format; end
 
     private
 
@@ -83,20 +69,12 @@ module DeployComplexity
       attachments
     end
 
-    def format_attachment_for_slack(attachment)
-      attachment.to_h
-    end
-
-    def format_attachment_for_cli(attachment)
-      attachment.title + "\n" + attachment.text
-    end
-
     def empty_commit_message
       "redeployed %s %s" % [base, time_delta]
     end
 
     def header
-      "*Deploy tag #{to} [#{revision}]*"
+      "Deploy tag #{to} [#{revision}]"
     end
 
     def summary_stats
