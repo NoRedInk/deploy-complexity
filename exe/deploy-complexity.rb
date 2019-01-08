@@ -51,15 +51,25 @@ def reference(name)
   end
 end
 
+# TODO: consider moving this to a separate parser and testing
 def pull_requests(merges, gh_url)
-  prs = merges.map do |line|
+  merges.map do |line|
     line.match(/pull request #(\d+) from (.*)$/) do |m|
-      [gh_url, m[1].to_i, "-", safe_name(m[2])]
+      {
+        gh_url: gh_url,
+        pr_number: m[1].to_i,
+        joiner: "-",
+        name: safe_name(m[2])
+      }
     end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
-      [gh_url, m[3].to_i, "S", m[2]] # squash merge
+      {
+        gh_url: gh_url,
+        pr_number: m[3].to_i,
+        joiner: "S",
+        name: m[2]
+      }
     end
-  end
-  prs.compact.map { |x| "%s/pull/%d %1s %s" % x }
+  end.compact
 end
 
 # deploys are the delta from base -> to, so to contains commits to add to base
@@ -89,15 +99,13 @@ def deploy(base, to, options)
   # and possibly per PR, or classify frontend, backend, spec changes
   stat = `git diff --stat #{range}` if stat
 
-  pull_requests = pull_requests(merges, gh_url)
-
   # TODO: scan for changes to app/jobs and report changes to params
   formatter = DeployComplexity::OutputFormatter.with(
     to: to,
     base: base,
     revision: revision,
     commits: commits,
-    pull_requests: pull_requests,
+    pull_requests: pull_requests(merges, gh_url),
     merges: merges,
     shortstat: shortstat,
     dirstat: dirstat,

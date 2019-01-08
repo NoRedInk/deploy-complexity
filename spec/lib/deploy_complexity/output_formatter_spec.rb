@@ -50,7 +50,14 @@ describe DeployComplexity::OutputFormatter do
           "bbbb Do the thing",
           "cccc Do the thing again"
         ],
-        pull_requests: [],
+        pull_requests: [
+          {
+            gh_url: "example.com",
+            pr_number: "1",
+            joiner: "-",
+            name: "add-more-cats"
+          }
+        ],
         merges: [],
         shortstat: "",
         stat: nil,
@@ -78,7 +85,7 @@ describe DeployComplexity::OutputFormatter do
     it "formats for the CLI" do
       expect(formatter.format_for_cli).to eq(<<-TXT.gsub(/^ +/, "").chomp)
         *Deploy tag to_commit [aaaa]*
-        0 pull requests of 0 merges, 2 commits 0 nanoseconds
+        1 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
 
         Migrations
@@ -94,9 +101,8 @@ describe DeployComplexity::OutputFormatter do
         Changed JavaScript Dependencies
         clipboard: 0.0.1 -> 0.0.5
 
-        Commits
-        bbbb Do the thing
-        cccc Do the thing again
+        Pull Requests
+        <example.com/pull/1|1> - add-more-cats
       TXT
     end
 
@@ -104,7 +110,7 @@ describe DeployComplexity::OutputFormatter do
       expect(formatter.format_for_slack).to eq(
         text: <<-TXT.gsub(/^\s+/, "").chomp,
         *Deploy tag to_commit [aaaa]*
-        0 pull requests of 0 merges, 2 commits 0 nanoseconds
+        1 pull requests of 0 merges, 2 commits 0 nanoseconds
         example.com/compare/base_ref...to_ref
         TXT
         attachments: [
@@ -138,10 +144,9 @@ describe DeployComplexity::OutputFormatter do
             color: "#B6C6FF"
           },
           {
-            title: "Commits",
+            title: "Pull Requests",
             text: <<-TXT.gsub(/^\s+/, "").chomp,
-              bbbb Do the thing
-              cccc Do the thing again
+              <example.com/pull/1|1> - add-more-cats
             TXT
             color: "#FFCCB6"
           }
