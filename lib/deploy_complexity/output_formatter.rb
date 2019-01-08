@@ -29,13 +29,13 @@ module DeployComplexity
 
     def format_for_slack
       {
-        text: text.compact.join("\n"),
+        text: text,
         attachments: attachments.map { |a| format_attachment_for_slack(a) }
       }
     end
 
     def format_for_cli
-      output = text.compact.join("\n")
+      output = text
 
       added_attachments = attachments
 
@@ -62,7 +62,7 @@ module DeployComplexity
         text << shortstats
       end
 
-      text
+      text.compact.join("\n")
     end
 
     def attachments
