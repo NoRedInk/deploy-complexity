@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    deploy-complexity (0.6.0)
+    deploy-complexity (0.7.0)
       octokit (~> 4.0)
 
 GEM
