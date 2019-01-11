@@ -198,7 +198,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       '
 - [Instructions on how to use Nix](https://github.com/NoRedInk/wiki/blob/master/engineering/using-nix.md)
 - [ ] changes build successfully with Nix (`nix-shell --pure` to check)
-- [ ] once approved, but before merging, make sure to update the Nix cache so that other people don\'t have to rebuild all changes.
+- [ ] once approved, but before merging, make sure to update the Nix cache so that other people don\'t have to rebuild all changes. Run `script/cache_nix_shell.sh`.
       '
     end
 
