@@ -105,7 +105,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
       "
 - [ ] Change the source code branch for staging to the branch being tested in the opsworks UI
 - [ ] Rebase your code over `origin/staging` to prevent a successful deploy of your changes from making staging run possibly outdated code
-- [ ] Create a brand new instance in the layer ([see instructions](https://github.com/NoRedInk/wiki/blob/master/ops-playbook/ops-scripts.md#synchronize_stackrb.))
+- [ ] Create a brand new instance in the layer ([see instructions](https://github.com/NoRedInk/wiki/blob/1f618042ed1d6b7c7297ec2672ae568e57944fde/ops-playbook/ops-plays.md#using-opsworks-to-bring-up-an-additional-time-based-instance))
 - [ ] Turn it on
 - [ ] Verify that the instances passes setup to online and doesn't fail
       ".strip
