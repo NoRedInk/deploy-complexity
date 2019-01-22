@@ -3,6 +3,8 @@ PATH
   specs:
     deploy-complexity (0.6.0)
       octokit (~> 4.0)
+      slack-notifier (~> 2.3.2)
+      values (~> 1.8.0)
 
 GEM
   remote: https://rubygems.org/
@@ -74,8 +76,6 @@ DEPENDENCIES
   rspec
   rspec-mocks
   rubocop
-  slack-notifier
-  values
 
 BUNDLED WITH
    1.17.1
