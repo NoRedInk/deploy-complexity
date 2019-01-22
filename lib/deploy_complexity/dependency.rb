@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'values'
 
 module DeployComplexity
+  # Represents a potential change in a package version for a dependency file
   class Dependency < Value.new(:package, :current, :previous, :file)
     def change
       if current.nil?

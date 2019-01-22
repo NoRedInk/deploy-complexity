@@ -77,7 +77,8 @@ describe DeployComplexity::ChangedElmPackages do
           include(dep("elm/time", current: "1.0.0"),
                   dep("elm-explorations/test", current: "1.2.0"),
                   dep("elm/core", previous: "1.0.2", current: nil),
-                  dep("elm/json", previous: "1.1.2", current: "1.2.2")))
+                  dep("elm/json", previous: "1.1.2", current: "1.2.2"))
+        )
       end
     end
   end
