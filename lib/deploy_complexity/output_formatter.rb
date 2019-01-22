@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'values'
+require 'deploy_complexity/github'
 
 module DeployComplexity
   Attachment = Value.new(:title, :text, :color)
@@ -92,7 +93,7 @@ module DeployComplexity
     end
 
     def compare_url
-      "%s/compare/%s...%s" % [gh_url, base_reference, to_reference]
+      Github.new(gh_url).compare(base_reference, to_reference)
     end
 
     def migration_attachment
