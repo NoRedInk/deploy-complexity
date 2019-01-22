@@ -15,7 +15,7 @@ last_n_deploys = nil
 action = nil
 options = {}
 
-optparse = OptionParser.new do |opts|
+optparse = OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
   opts.banner =
     "Usage: %s [[base branch] deploy branch]" % [File.basename($PROGRAM_NAME)]
   opts.on("-b", "--branch BRANCH", String, "Specify the base branch") do |e|
