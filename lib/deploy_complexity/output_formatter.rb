@@ -132,7 +132,7 @@ module DeployComplexity
       Attachment.with(
         title: "Pull Requests",
         text: pull_requests.map do |pr|
-          url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
+          url = Github.new(pr.fetch(:gh_url)).pull_request(pr.fetch(:pr_number))
           "#{url} #{pr.fetch(:joiner)} #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"

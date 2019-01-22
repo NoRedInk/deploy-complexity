@@ -10,5 +10,9 @@ module DeployComplexity
     def compare(base, to)
       "%s/compare/%s...%s" % [@project_url, base, to]
     end
+
+    def pull_request(number)
+      "%s/pull/%d" % [@project_url, number]
+    end
   end
 end
