@@ -38,8 +38,14 @@ optparse = OptionParser.new do |opts|
           "Github project url to construct links from") do |url|
     options[:gh_url] = url
   end
-  opts.on("--slack-format",
-          "Format output for Slack") { options[:slack_format] = true }
+  opts.on("--slack #foo,#bar", Array,
+          "Report changes to slack channels") do |channels|
+    if channels.any? && ENV['SLACK_WEBHOOK']
+      options[:slack_channels] = channels
+    else
+      STDERR.puts "Must specify slack channels & include SLACK_WEBHOOK in environment."
+    end
+  end
   opts.on_tail("-v", "--version", "Show version info and exit") do
     abort <<~BOILERPLATE
       deploy-complexity.rb #{DeployComplexity::VERSION}

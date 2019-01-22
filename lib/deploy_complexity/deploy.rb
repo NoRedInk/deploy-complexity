@@ -26,7 +26,6 @@ module DeployComplexity
       gh_url = options[:gh_url]
       dirstat = options[:dirstat]
       stat = options[:stat]
-      slack_format = options[:slack_format]
 
       range = "#{base}...#{to}"
 
@@ -75,11 +74,25 @@ module DeployComplexity
         ).output
       }
 
-      if slack_format
-        DeployComplexity::SlackOutputFormatter.with(formatter_attributes).format
-      else
-        DeployComplexity::CliOutputFormatter.with(formatter_attributes).format
+      if options[:slack_channels].any?
+        log = DeployComplexity::SlackOutputFormatter.with(formatter_attributes).format
+        begin
+          webhook = ENV['SLACK_WEBHOOK']
+          require 'slack-notifier'
+          channels.each do |channel|
+            notifier = Slack::Notifier.new webhook do
+              defaults channel: channel,
+                       username: 'DeployComplexity'
+            end
+            notifier.ping log
+          end
+        rescue StandardError => e
+          STDERR.puts "Exception thrown while notifying slack!"
+          STDERR.puts e
+        end
       end
+
+      DeployComplexity::CliOutputFormatter.with(formatter_attributes).format
     end
 
     private
