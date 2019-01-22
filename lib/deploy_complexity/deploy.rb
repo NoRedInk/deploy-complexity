@@ -74,23 +74,7 @@ module DeployComplexity
         ).output
       }
 
-      if options[:slack_channels].any?
-        log = DeployComplexity::SlackOutputFormatter.with(formatter_attributes).format
-        begin
-          webhook = ENV['SLACK_WEBHOOK']
-          require 'slack-notifier'
-          channels.each do |channel|
-            notifier = Slack::Notifier.new webhook do
-              defaults channel: channel,
-                       username: 'DeployComplexity'
-            end
-            notifier.ping log
-          end
-        rescue StandardError => e
-          STDERR.puts "Exception thrown while notifying slack!"
-          STDERR.puts e
-        end
-      end
+      slack(formatter_attributes, options[:slack_channels])
 
       DeployComplexity::CliOutputFormatter.with(formatter_attributes).format
     end
@@ -98,6 +82,24 @@ module DeployComplexity
     private
 
     attr_reader :base, :to, :options
+
+    def slack(formatter_attributes, channels)
+      log = DeployComplexity::SlackOutputFormatter.with(formatter_attributes).format
+      begin
+        webhook = ENV['SLACK_WEBHOOK']
+        require 'slack-notifier'
+        channels.each do |channel|
+          notifier = Slack::Notifier.new webhook do
+            defaults channel: channel,
+                     username: 'DeployComplexity'
+          end
+          notifier.ping log
+        end
+      rescue StandardError => e
+        STDERR.puts "Exception thrown while notifying slack!"
+        STDERR.puts e
+      end
+    end
 
     # tag format: production-2016-10-22-0103 or $ENV-YYYY-MM-DD-HHmm
     def parse_when(tag)
