@@ -111,8 +111,6 @@ module DeployComplexity
       end
     end
 
-    COMPARE_FORMAT = "%s/compare/%s...%s"
-
     def time_between_deploys(from, to)
       deploy_time = parse_when(to)
       last_time = parse_when(from)
