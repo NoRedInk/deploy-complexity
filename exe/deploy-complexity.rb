@@ -7,6 +7,7 @@ require 'optparse'
 
 def deploy(base, to, options)
   puts DeployComplexity::Deploy.new(base, to, options).generate
+  puts
 end
 
 branch = "production"
