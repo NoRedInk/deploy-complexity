@@ -48,7 +48,7 @@ module DeployComplexity
         text << empty_commit_message
       else
         text << summary_stats
-        text << compare_url
+        text << Github.new(gh_url).compare(base_reference, to_reference)
         text << shortstats
       end
 
@@ -90,10 +90,6 @@ module DeployComplexity
       return if shortstat.empty?
 
       shortstat.first.strip
-    end
-
-    def compare_url
-      Github.new(gh_url).compare(base_reference, to_reference)
     end
 
     def migration_attachment
