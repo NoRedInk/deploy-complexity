@@ -16,6 +16,12 @@ describe DeployComplexity::ChangedRubyGems do
     )
   end
 
+  def dep(package, current: nil, previous: nil, file: "file_path")
+    DeployComplexity::Dependency.with(
+      package: package, file: file, current: current, previous: previous
+    )
+  end
+
   describe "#changes" do
     context "with no changed gems" do
       let(:new) { old }
@@ -28,14 +34,14 @@ describe DeployComplexity::ChangedRubyGems do
       let(:new) { File.read("spec/lib/deploy_complexity/spec_helpers/new_gemfile_lock.txt") }
 
       it "formats the changes" do
-        expect(changed_ruby_gems.changes).to eq(
-          [
-            "Added deploy-complexity: 0.4.0 (file_path)",
-            "Added rake: 10.5.0 (file_path)",
-            "Removed pry-doc: 0.13.5 (file_path)",
-            "Updated babadook: 1.0.0 -> 1.0.0 (GIT https://github.com/notrubygems.git bbbb) (file_path)",
-            "Updated pry: 0.12.2 -> 0.12.3 (file_path)"
-          ]
+        expect(changed_ruby_gems.changes).to(
+          include(
+            dep("deploy-complexity", current: "0.4.0"),
+            dep("rake", current: "10.5.0"),
+            dep("pry-doc", previous: "0.13.5"),
+            dep("babadook", previous: "1.0.0", current: "1.0.0 (GIT https://github.com/notrubygems.git bbbb)"),
+            dep("pry", previous: "0.12.2", current: "0.12.3")
+          )
         )
       end
     end

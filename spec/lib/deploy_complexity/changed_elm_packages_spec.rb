@@ -34,6 +34,12 @@ describe DeployComplexity::ChangedElmPackages do
     )
   end
 
+  def dep(package, current: nil, previous: nil, file: "file_path")
+    DeployComplexity::Dependency.with(
+      package: package, file: file, current: current, previous: previous
+    )
+  end
+
   describe "#changes" do
     context "with no changed packages" do
       let(:new) { old }
@@ -67,14 +73,11 @@ describe DeployComplexity::ChangedElmPackages do
       end
 
       it "formats the changes" do
-        expect(changed_elm_packages.changes).to eq(
-          [
-            "Added elm/time: 1.0.0 (file_path)",
-            "Added elm-explorations/test: 1.2.0 (file_path)",
-            "Removed elm/core: 1.0.2 (file_path)",
-            "Updated elm/json: 1.1.2 -> 1.2.2 (file_path)"
-          ]
-        )
+        expect(changed_elm_packages.changes).to(
+          include(dep("elm/time", current: "1.0.0"),
+                  dep("elm-explorations/test", current: "1.2.0"),
+                  dep("elm/core", previous: "1.0.2", current: nil),
+                  dep("elm/json", previous: "1.1.2", current: "1.2.2")))
       end
     end
   end
