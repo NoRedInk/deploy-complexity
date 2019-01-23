@@ -9,6 +9,7 @@ require 'deploy_complexity/changed_files'
 require 'deploy_complexity/changed_elm_packages'
 require 'deploy_complexity/changed_javascript_packages'
 require 'deploy_complexity/changed_ruby_gems'
+require 'deploy_complexity/git'
 
 module DeployComplexity
   # The main module for deploy complexity that parses output from git
@@ -32,14 +33,14 @@ module DeployComplexity
       # tag_revision = `git rev-parse --short #{to}`.chomp
       revision = `git rev-list --abbrev-commit -n1 #{to}`.chomp
 
-      time_delta = time_between_deploys(safe_name(base), safe_name(to))
+      time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
       commits = `git log --oneline #{range}`.split(/\n/)
       merges = commits.grep(/Merges|\#\d+/)
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
-      versioned_url = "#{gh_url}/blob/#{safe_name(to)}/"
+      versioned_url = "#{gh_url}/blob/#{Git.safe_name(to)}/"
       changed_files = DeployComplexity::ChangedFiles.new(names_only, versioned_url)
 
       dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
@@ -127,14 +128,9 @@ module DeployComplexity
       end
     end
 
-    # converts origin/master -> master
-    def safe_name(name)
-      name.chomp.split(%r{/}).last
-    end
-
     # converts a branch name like master into the closest tag or commit sha
     def reference(name)
-      branch = safe_name(name)
+      branch = Git.safe_name(name)
       tag = `git tag --points-at #{name} | grep #{branch}`.chomp
       if tag.empty?
         `git rev-parse --short #{branch}`.chomp
@@ -151,7 +147,7 @@ module DeployComplexity
             gh_url: gh_url,
             pr_number: m[1].to_i,
             joiner: "-",
-            name: safe_name(m[2])
+            name: Git.safe_name(m[2])
           }
         end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
           {

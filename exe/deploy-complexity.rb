@@ -19,7 +19,7 @@ optparse = OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
   opts.banner =
     "Usage: %s [[base branch] deploy branch]" % [File.basename($PROGRAM_NAME)]
   opts.on("-b", "--branch BRANCH", String, "Specify the base branch") do |e|
-    branch = safe_name(e) || branch
+    branch = DeployComplexity::Git.safe_name(e) || branch
   end
   opts.on("-d", "--deploys [N]", Integer,
           "Show historical deploys, shows all if N is not specified") do |e|
