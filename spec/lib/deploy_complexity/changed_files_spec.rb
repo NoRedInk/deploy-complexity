@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'deploy_complexity/changed_files'
 
-describe ChangedFiles do
+describe DeployComplexity::ChangedFiles do
   let(:files) do
     <<-TXT.gsub(/^\s+/, "")
       app/assets/images/foo/bar.svg
@@ -22,7 +22,7 @@ describe ChangedFiles do
     TXT
   end
 
-  subject(:changed_files) { ChangedFiles.new(files, versioned_url) }
+  subject(:changed_files) { DeployComplexity::ChangedFiles.new(files, versioned_url) }
 
   let(:versioned_url) { "https://github.com/NoRedInk/deploy-complexity/blob/v0.5.0/" }
 

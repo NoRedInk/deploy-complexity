@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'deploy_complexity/changed_elm_packages'
 
-describe ChangedElmPackages do
+describe DeployComplexity::ChangedElmPackages do
   let(:old) do
     <<-TXT.gsub(/^\s+/, "")
       {
@@ -27,7 +27,7 @@ describe ChangedElmPackages do
   end
 
   subject(:changed_elm_packages) do
-    ChangedElmPackages.new(
+    DeployComplexity::ChangedElmPackages.new(
       file: "file_path",
       old: old,
       new: new
