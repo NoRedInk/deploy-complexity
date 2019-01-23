@@ -7,6 +7,10 @@ module DeployComplexity
       @project_url = gh_url
     end
 
+    def blob(to)
+      "%s/blob/%s/" % [@project_url, to]
+    end
+
     def compare(base, to)
       "%s/compare/%s...%s" % [@project_url, base, to]
     end

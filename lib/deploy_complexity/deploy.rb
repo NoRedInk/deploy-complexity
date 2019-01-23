@@ -10,6 +10,7 @@ require 'deploy_complexity/changed_elm_packages'
 require 'deploy_complexity/changed_javascript_packages'
 require 'deploy_complexity/changed_ruby_gems'
 require 'deploy_complexity/git'
+require 'deploy_complexity/github'
 
 module DeployComplexity
   # The main module for deploy complexity that parses output from git
@@ -40,7 +41,7 @@ module DeployComplexity
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
-      versioned_url = "#{gh_url}/blob/#{Git.safe_name(to)}/"
+      versioned_url = Github.new(gh_url).blob(Git.safe_name(to))
       changed_files = DeployComplexity::ChangedFiles.new(names_only, versioned_url)
 
       dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
