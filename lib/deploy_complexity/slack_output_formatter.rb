@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "deploy_complexity/output_formatter"
+require "deploy_complexity/github"
 
 module DeployComplexity
   # Formats deploy complexity output for slack
@@ -38,7 +39,7 @@ module DeployComplexity
       Attachment.with(
         title: "Pull Requests",
         text: pull_requests.map do |pr|
-          url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
+          url = Github.new(pr.fetch(:gh_url)).pull_request(pr.fetch(:pr_number))
           "<#{url}|#{pr.fetch(:pr_number)}> - #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"
