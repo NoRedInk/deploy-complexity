@@ -84,6 +84,8 @@ module DeployComplexity
     attr_reader :base, :to, :options
 
     def slack(formatter_attributes, channels)
+      return if channels.nil? || channels.none?
+
       log = DeployComplexity::SlackOutputFormatter.with(formatter_attributes).format
       begin
         webhook = ENV['SLACK_WEBHOOK']
