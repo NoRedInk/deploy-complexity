@@ -16,7 +16,7 @@ describe DeployComplexity::CliOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [],
@@ -45,7 +45,6 @@ describe DeployComplexity::CliOutputFormatter do
         ],
         pull_requests: [
           {
-            gh_url: "example.com",
             pr_number: "1",
             joiner: "-",
             name: "add-more-cats"
@@ -56,7 +55,7 @@ describe DeployComplexity::CliOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [

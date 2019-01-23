@@ -22,7 +22,7 @@ module DeployComplexity
       :dirstat,
       :stat,
       :time_delta,
-      :gh_url,
+      :github,
       :migrations,
       :elm_packages,
       :ruby_dependencies,
@@ -48,7 +48,7 @@ module DeployComplexity
         text << empty_commit_message
       else
         text << summary_stats
-        text << Github.new(gh_url).compare(base_reference, to_reference)
+        text << github.compare(base_reference, to_reference)
         text << shortstats
       end
 
@@ -128,7 +128,7 @@ module DeployComplexity
       Attachment.with(
         title: "Pull Requests",
         text: pull_requests.map do |pr|
-          url = Github.new(pr.fetch(:gh_url)).pull_request(pr.fetch(:pr_number))
+          url = github.pull_request(pr.fetch(:pr_number))
           "#{url} #{pr.fetch(:joiner)} #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"

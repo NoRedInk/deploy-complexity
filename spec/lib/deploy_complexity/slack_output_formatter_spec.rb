@@ -16,7 +16,7 @@ describe DeployComplexity::SlackOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [],
@@ -46,7 +46,6 @@ describe DeployComplexity::SlackOutputFormatter do
         ],
         pull_requests: [
           {
-            gh_url: "example.com",
             pr_number: "1",
             joiner: "-",
             name: "add-more-cats"
@@ -57,7 +56,7 @@ describe DeployComplexity::SlackOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [
