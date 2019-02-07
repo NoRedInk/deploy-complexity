@@ -34,6 +34,10 @@ module DeployComplexity
       "*#{super}*"
     end
 
+    def compare_link
+      "<%s|%s...%s>" % [super, base_reference, to_reference]
+    end
+
     def migration_attachment
       links = migrations.map do |migration|
         "<%s|%s>" % [github.blob(revision, migration), migration]

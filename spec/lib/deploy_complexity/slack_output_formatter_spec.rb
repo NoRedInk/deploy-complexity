@@ -80,7 +80,7 @@ describe DeployComplexity::SlackOutputFormatter do
         text: <<-TXT.gsub(/^\s+/, "").chomp,
         *Deploy tag to_commit [aaaa]*
         1 pull requests of 0 merges, 2 commits 0 nanoseconds
-        example.com/compare/base_ref...to_ref
+        <example.com/compare/base_ref...to_ref|base_ref...to_ref>
         TXT
         attachments: [
           {

@@ -48,7 +48,7 @@ module DeployComplexity
         text << empty_commit_message
       else
         text << summary_stats
-        text << github.compare(base_reference, to_reference)
+        text << compare_link
         text << shortstats
       end
 
@@ -79,6 +79,10 @@ module DeployComplexity
 
     def header
       "Deploy tag #{to} [#{revision}]"
+    end
+
+    def compare_link
+      github.compare(base_reference, to_reference)
     end
 
     def summary_stats
