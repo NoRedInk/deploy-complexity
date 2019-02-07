@@ -38,6 +38,12 @@ describe DeployComplexity::ChangedJavascriptPackages do
     )
   end
 
+  def dep(package, current: nil, previous: nil, file: "file_path")
+    DeployComplexity::Dependency.with(
+      package: package, file: file, current: current, previous: previous
+    )
+  end
+
   describe "#changes" do
     context "with no changed packages" do
       let(:new) { old }
@@ -75,12 +81,10 @@ describe DeployComplexity::ChangedJavascriptPackages do
       end
 
       it "formats the changes" do
-        expect(changed_javascript_packages.changes).to eq(
-          [
-            "Added @rhubarb/pie: 3.1.4 (file_path)",
-            "Removed @blueberry/pie: 3.1.4 (file_path)",
-            "Updated @blackberry/pie: 3.1.4 -> 3.1.5 (file_path)"
-          ]
+        expect(changed_javascript_packages.changes).to(
+          include(dep("@rhubarb/pie", current: "3.1.4"),
+                  dep("@blueberry/pie", previous: "3.1.4"),
+                  dep("@blackberry/pie", previous: "3.1.4", current: "3.1.5"))
         )
       end
     end

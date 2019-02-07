@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "deploy_complexity/output_formatter"
+require "deploy_complexity/github"
 
 module DeployComplexity
   # Formats deploy complexity output for slack
@@ -33,12 +34,27 @@ module DeployComplexity
       "*#{super}*"
     end
 
+    def compare_link
+      "<%s|%s...%s>" % [super, base_reference, to_reference]
+    end
+
+    def migration_attachment
+      links = migrations.map do |migration|
+        "<%s|%s>" % [github.blob(revision, migration), migration]
+      end
+      Attachment.with(
+        title: "Migrations",
+        text: links.join("\n"),
+        color: "#E6E6FA"
+      )
+    end
+
     # Override parent by fancy formatting links
     def pull_request_attachment
       Attachment.with(
         title: "Pull Requests",
         text: pull_requests.map do |pr|
-          url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
+          url = github.pull_request(pr.fetch(:pr_number))
           "<#{url}|#{pr.fetch(:pr_number)}> - #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"

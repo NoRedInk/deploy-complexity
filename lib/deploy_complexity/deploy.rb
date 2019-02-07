@@ -10,6 +10,7 @@ require 'deploy_complexity/changed_elm_packages'
 require 'deploy_complexity/changed_javascript_packages'
 require 'deploy_complexity/changed_ruby_gems'
 require 'deploy_complexity/git'
+require 'deploy_complexity/github'
 
 module DeployComplexity
   # The main module for deploy complexity that parses output from git
@@ -24,7 +25,7 @@ module DeployComplexity
     end
 
     def generate
-      gh_url = options[:gh_url]
+      github = Github.new(options[:gh_url])
       dirstat = options[:dirstat]
       stat = options[:stat]
 
@@ -40,8 +41,7 @@ module DeployComplexity
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
-      versioned_url = "#{gh_url}/blob/#{Git.safe_name(to)}/"
-      changed_files = DeployComplexity::ChangedFiles.new(names_only, versioned_url)
+      changed_files = DeployComplexity::ChangedFiles.new(names_only)
 
       dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
       # TODO: investigate summarizing language / spec content based on file suffix,
@@ -54,13 +54,13 @@ module DeployComplexity
         base: base,
         revision: revision,
         commits: commits,
-        pull_requests: pull_requests(merges, gh_url),
+        pull_requests: pull_requests(merges),
         merges: merges,
         shortstat: shortstat,
         dirstat: dirstat,
         stat: stat,
         time_delta: time_delta,
-        gh_url: gh_url,
+        github: github,
         base_reference: reference(base),
         to_reference: reference(to),
         migrations: changed_files.migrations,
@@ -111,8 +111,6 @@ module DeployComplexity
       end
     end
 
-    COMPARE_FORMAT = "%s/compare/%s...%s"
-
     def time_between_deploys(from, to)
       deploy_time = parse_when(to)
       last_time = parse_when(from)
@@ -140,18 +138,16 @@ module DeployComplexity
     end
 
     # TODO: consider moving this to a separate parser and testing
-    def pull_requests(merges, gh_url)
+    def pull_requests(merges)
       merges.map do |line|
         line.match(/pull request #(\d+) from (.*)$/) do |m|
           {
-            gh_url: gh_url,
             pr_number: m[1].to_i,
             joiner: "-",
             name: Git.safe_name(m[2])
           }
         end || line.match(/(\w+)\s+(.*)\(\#(\d+)\)/) do |m|
           {
-            gh_url: gh_url,
             pr_number: m[3].to_i,
             joiner: "S",
             name: m[2]

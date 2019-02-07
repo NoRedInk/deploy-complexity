@@ -22,14 +22,12 @@ describe DeployComplexity::ChangedFiles do
     TXT
   end
 
-  subject(:changed_files) { DeployComplexity::ChangedFiles.new(files, versioned_url) }
-
-  let(:versioned_url) { "https://github.com/NoRedInk/deploy-complexity/blob/v0.5.0/" }
+  subject(:changed_files) { DeployComplexity::ChangedFiles.new(files) }
 
   describe "#migrations" do
     it "generates a list of links to migration files" do
       expect(changed_files.migrations)
-        .to(eq(["#{versioned_url}db/migrate/20121210193522_add_a_to_b.rb"]))
+        .to(eq(["db/migrate/20121210193522_add_a_to_b.rb"]))
     end
   end
 

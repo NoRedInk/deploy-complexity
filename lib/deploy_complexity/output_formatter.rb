@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'values'
+require 'deploy_complexity/github'
 
 module DeployComplexity
   Attachment = Value.new(:title, :text, :color)
@@ -21,7 +22,7 @@ module DeployComplexity
       :dirstat,
       :stat,
       :time_delta,
-      :gh_url,
+      :github,
       :migrations,
       :elm_packages,
       :ruby_dependencies,
@@ -47,7 +48,7 @@ module DeployComplexity
         text << empty_commit_message
       else
         text << summary_stats
-        text << compare_url
+        text << compare_link
         text << shortstats
       end
 
@@ -80,6 +81,10 @@ module DeployComplexity
       "Deploy tag #{to} [#{revision}]"
     end
 
+    def compare_link
+      github.compare(base_reference, to_reference)
+    end
+
     def summary_stats
       "%d pull requests of %d merges, %d commits %s" %
         [pull_requests.count, merges.count, commits.count, time_delta]
@@ -91,14 +96,11 @@ module DeployComplexity
       shortstat.first.strip
     end
 
-    def compare_url
-      "%s/compare/%s...%s" % [gh_url, base_reference, to_reference]
-    end
-
     def migration_attachment
+      links = migrations.map { |migration| github.blob(revision, migration) }
       Attachment.with(
         title: "Migrations",
-        text: migrations.join("\n"),
+        text: links.join("\n"),
         color: "#E6E6FA"
       )
     end
@@ -131,7 +133,7 @@ module DeployComplexity
       Attachment.with(
         title: "Pull Requests",
         text: pull_requests.map do |pr|
-          url = "#{pr.fetch(:gh_url)}/pull/#{pr.fetch(:pr_number)}"
+          url = github.pull_request(pr.fetch(:pr_number))
           "#{url} #{pr.fetch(:joiner)} #{pr.fetch(:name)}"
         end.join("\n"),
         color: "#FFCCB6"

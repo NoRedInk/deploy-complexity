@@ -16,7 +16,7 @@ describe DeployComplexity::CliOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [],
@@ -45,7 +45,6 @@ describe DeployComplexity::CliOutputFormatter do
         ],
         pull_requests: [
           {
-            gh_url: "example.com",
             pr_number: "1",
             joiner: "-",
             name: "add-more-cats"
@@ -56,12 +55,12 @@ describe DeployComplexity::CliOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [
-          "example.com/migrate_awayyyy",
-          "example.com/migrate_awayyyy_again"
+          "migrate_awayyyy",
+          "migrate_awayyyy_again"
         ],
         elm_packages: [
           "elm/core: 1.1.0 -> 1.2.0"
@@ -82,8 +81,8 @@ describe DeployComplexity::CliOutputFormatter do
         example.com/compare/base_ref...to_ref
 
         Migrations
-        example.com/migrate_awayyyy
-        example.com/migrate_awayyyy_again
+        example.com/blob/aaaa/migrate_awayyyy
+        example.com/blob/aaaa/migrate_awayyyy_again
 
         Changed Elm Packages
         elm/core: 1.1.0 -> 1.2.0

@@ -16,7 +16,7 @@ describe DeployComplexity::SlackOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [],
@@ -46,7 +46,6 @@ describe DeployComplexity::SlackOutputFormatter do
         ],
         pull_requests: [
           {
-            gh_url: "example.com",
             pr_number: "1",
             joiner: "-",
             name: "add-more-cats"
@@ -57,12 +56,12 @@ describe DeployComplexity::SlackOutputFormatter do
         stat: nil,
         dirstat: nil,
         time_delta: "0 nanoseconds",
-        gh_url: "example.com",
+        github: DeployComplexity::Github.new("example.com"),
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [
-          "example.com/migrate_awayyyy",
-          "example.com/migrate_awayyyy_again"
+          "migrate_awayyyy",
+          "migrate_awayyyy_again"
         ],
         elm_packages: [
           "elm/core: 1.1.0 -> 1.2.0"
@@ -81,14 +80,14 @@ describe DeployComplexity::SlackOutputFormatter do
         text: <<-TXT.gsub(/^\s+/, "").chomp,
         *Deploy tag to_commit [aaaa]*
         1 pull requests of 0 merges, 2 commits 0 nanoseconds
-        example.com/compare/base_ref...to_ref
+        <example.com/compare/base_ref...to_ref|base_ref...to_ref>
         TXT
         attachments: [
           {
             title: "Migrations",
             text: <<-TXT.gsub(/^\s+/, "").chomp,
-              example.com/migrate_awayyyy
-              example.com/migrate_awayyyy_again
+              <example.com/blob/aaaa/migrate_awayyyy|migrate_awayyyy>
+              <example.com/blob/aaaa/migrate_awayyyy_again|migrate_awayyyy_again>
             TXT
             color: "#E6E6FA"
           },
