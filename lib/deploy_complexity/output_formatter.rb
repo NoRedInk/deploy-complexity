@@ -93,9 +93,10 @@ module DeployComplexity
     end
 
     def migration_attachment
+      links = migrations.map { |migration| github.blob(revision, migration) }
       Attachment.with(
         title: "Migrations",
-        text: migrations.join("\n"),
+        text: links.join("\n"),
         color: "#E6E6FA"
       )
     end

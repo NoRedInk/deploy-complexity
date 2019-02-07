@@ -34,6 +34,17 @@ module DeployComplexity
       "*#{super}*"
     end
 
+    def migration_attachment
+      links = migrations.map do |migration|
+        "<%s|%s>" % [github.blob(revision, migration), migration]
+      end
+      Attachment.with(
+        title: "Migrations",
+        text: links.join("\n"),
+        color: "#E6E6FA"
+      )
+    end
+
     # Override parent by fancy formatting links
     def pull_request_attachment
       Attachment.with(

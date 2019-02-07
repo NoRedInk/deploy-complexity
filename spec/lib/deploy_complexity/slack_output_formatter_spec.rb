@@ -60,8 +60,8 @@ describe DeployComplexity::SlackOutputFormatter do
         base_reference: "base_ref",
         to_reference: "to_ref",
         migrations: [
-          "example.com/migrate_awayyyy",
-          "example.com/migrate_awayyyy_again"
+          "migrate_awayyyy",
+          "migrate_awayyyy_again"
         ],
         elm_packages: [
           "elm/core: 1.1.0 -> 1.2.0"
@@ -86,8 +86,8 @@ describe DeployComplexity::SlackOutputFormatter do
           {
             title: "Migrations",
             text: <<-TXT.gsub(/^\s+/, "").chomp,
-              example.com/migrate_awayyyy
-              example.com/migrate_awayyyy_again
+              <example.com/blob/aaaa/migrate_awayyyy|migrate_awayyyy>
+              <example.com/blob/aaaa/migrate_awayyyy_again|migrate_awayyyy_again>
             TXT
             color: "#E6E6FA"
           },

@@ -26,6 +26,9 @@ Style/FormatString:
 Style/FormatStringToken:
   Enabled: false
 
+Style/WordArray:
+  Enabled: false
+
 Metrics/CyclomaticComplexity:
   Max: 10
 

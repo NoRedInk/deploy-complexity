@@ -41,8 +41,7 @@ module DeployComplexity
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
-      versioned_url = github.blob(Git.safe_name(to))
-      changed_files = DeployComplexity::ChangedFiles.new(names_only, versioned_url)
+      changed_files = DeployComplexity::ChangedFiles.new(names_only)
 
       dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
       # TODO: investigate summarizing language / spec content based on file suffix,
