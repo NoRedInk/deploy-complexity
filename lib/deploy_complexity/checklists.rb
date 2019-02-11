@@ -173,7 +173,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
 
     def checklist
-      '
+      "
 - [ ] Dependencies added or changed in the Dockerfile are mirrored in the production/staging/demo environment [Cookbooks](https://github.com/NoRedInk/NoRedInk-opsworks/blob/master/noredink/recipes/setup.rb)
 - In case of dependency changes, ensure Capistrano deploys still work:
   - [ ] Wait for free time to test staging
@@ -181,7 +181,7 @@ The process for testing capistrano is to deploy the capistrano changes branch to
   - [ ] Verify the deploy passes
     - If it doesn't, fix the branch and redeploy until it works
     - [ ] If it does, reset back to origin/master and request review of the PR
-      '.strip
+      ".strip
     end
 
     def relevant_for(files)
