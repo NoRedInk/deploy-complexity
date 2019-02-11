@@ -174,8 +174,13 @@ The process for testing capistrano is to deploy the capistrano changes branch to
 
     def checklist
       '
-- [ ] If you added a dependency to the Dockerfile for a script that will be called during both CI builds **and** Deploy builds then you should also add that dependency to the chef recipe for [jenkins_common](https://github.com/NoRedInk/NoRedInk-chef/blob/master/site-cookbooks/noredink/recipes/jenkins_common.rb).
-  - consequence of not doing this: deploys will break!
+- [ ] Dependencies added or changed in the Dockerfile are mirrored in the production/staging/demo environment [Cookbooks](https://github.com/NoRedInk/NoRedInk-opsworks/blob/master/noredink/recipes/setup.rb)
+- In case of dependency changes, ensure Capistrano deploys still work:
+  - [ ] Wait for free time to test staging
+  - [ ] Reset/deploy that branch to staging using the normal jenkins deploy process
+  - [ ] Verify the deploy passes
+    - If it doesn't, fix the branch and redeploy until it works
+    - [ ] If it does, reset back to origin/master and request review of the PR
       '.strip
     end
 
