@@ -44,7 +44,7 @@ optparse = OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
     if channels.any? && ENV['SLACK_WEBHOOK']
       options[:slack_channels] = channels
     else
-      STDERR.puts "Must specify slack channels & include SLACK_WEBHOOK in environment."
+      warn "Must specify slack channels & include SLACK_WEBHOOK in environment."
     end
   end
   opts.on_tail("-v", "--version", "Show version info and exit") do
