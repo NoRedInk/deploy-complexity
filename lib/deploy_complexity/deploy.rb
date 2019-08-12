@@ -99,8 +99,8 @@ module DeployComplexity
           notifier.ping log
         end
       rescue StandardError => e
-        STDERR.puts "Exception thrown while notifying slack!"
-        STDERR.puts e
+        warn "Exception thrown while notifying slack!"
+        warn e
       end
     end
 
