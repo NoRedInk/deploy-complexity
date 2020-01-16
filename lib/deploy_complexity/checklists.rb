@@ -22,6 +22,10 @@ module Checklists
     end
   end
 
+  # all these subclasses should be self-descriptive from their classnames, so go
+  # away rubocop.
+  # rubocop:disable Style/Documentation
+
   # Github-flavored Markdown doesn't wrap line breaks, so we need to disable
   # line length checks for now.
   # rubocop:disable Metrics/LineLength
