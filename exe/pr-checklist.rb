@@ -8,7 +8,7 @@ require 'octokit'
 
 # options and validation
 class Options
-  attr_writer :branch, :token, :org, :repo, :dry_run
+  attr_writer :branch, :token, :org, :repo, :dry_run, :checklist
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
@@ -35,6 +35,10 @@ class Options
 
   def dry_run
     @dry_run || false
+  end
+
+  def checklist
+    @checklist || nil
   end
 end
 
@@ -65,6 +69,11 @@ OptionParser.new do |opts|
     "-n", "--dry-run",
     "Check things, but do not make any edits or comments"
   ) { |dry_run| options.dry_run = dry_run }
+
+  opts.on(
+    "-c", "--custom-checklist config.rb", String,
+    "Specify external ruby file to load checklists from"
+  ) { |checklist| options.checklist = checklist }
 end.parse!
 
 puts "Checking branch #{options.branch}..."
@@ -80,7 +89,14 @@ end
 
 puts "Found pull request #{pr}"
 files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
-checklists = Checklists.for_files(files_changed)
+
+# conditionally load externally defined checklist from project
+if options.checklist
+  puts "Loading external configuration from %s" % [options.checklist]
+  load options.checklist
+end
+
+checklists = Checklists.for_files(Checklists.checklists, files_changed)
 new_checklists = pr.update_with_checklists(checklists, options.dry_run)
 
 new_checklists.each do |checklist, files|

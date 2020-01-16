@@ -31,6 +31,44 @@ Use `GIT_DIR` to run a local copy of `pr-checklist` or `deploy-complexity` again
 GIT_DIR=../repo bundle exec ./exe/pr-checklist.rb -b branch
 ```
 
+### Custom Checklists
+
+If you want to define checklists within your repo, create a ruby file `tools/deploy_complexity/checklists.rb`:
+
+```
+module Checklists
+  # Example checklist item
+  class BlarghDetector < Checklist
+    def human_name
+      "Blarg!"
+    end
+    
+    def checklist
+    '- [ ] Removed extraneous blargh'.strip
+    end
+    
+    def relevant_for(files)
+      files.select do |file| 
+        file.ends_with(".rb") && IO.read(file) =~ /blargh/
+      end
+    end
+  end
+
+  module_function
+  
+  # List of checklists to run
+  def checklists
+    [BlarghDetector].freeze
+  end
+end
+```
+
+And then execute the pr-checklist runner inside of CI using:
+
+```
+bundle exec pr-checklist.rb -b branch -c tools/deploy_complexity/checklists.rb
+```
+
 ### Github Token
 
 pr-checklist.rb requires a github token with role REPO to edit PR descriptions and comment on a PR. Make sure that `GITHUB_TOKEN` is set in the environment.
