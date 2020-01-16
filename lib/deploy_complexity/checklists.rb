@@ -103,12 +103,12 @@ module Checklists
     [
       RubyFactoriesChecklist,
       RoutesChecklist,
-      ResqueChecklist,
+      ResqueChecklist
     ].freeze
   end
 
   def for_files(checklists, files)
-    puts "Applying %s" % [checklists.join(",").gsub(/Checklists::/,'')]
+    puts "Applying %s" % [checklists.join(",").gsub(/Checklists::/, '')]
     Checker.new(checklists).for_files(files)
   end
 end
