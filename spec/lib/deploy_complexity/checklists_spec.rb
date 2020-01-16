@@ -105,68 +105,6 @@ describe Checklists do
       end
     end
 
-    describe 'ElmFactoriesChecklist' do
-      subject { Checklists::ElmFactoriesChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for elm specs" do
-        expect(subject).to be_relevant_for("ui/tests/SomeNeatSpec.elm")
-      end
-    end
-
-    describe 'CapistranoChecklist' do
-      subject { Checklists::CapistranoChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for files under lib/capistrano/" do
-        expect(subject).to be_relevant_for("lib/capistrano/tasks/foobar.rake")
-      end
-
-      it "should be relevant for the Capfile" do
-        expect(subject).to be_relevant_for("Capfile")
-      end
-
-      it "should be relevant for the Gemfile" do
-        expect(subject).to be_relevant_for("Gemfile")
-      end
-
-      it "should be relevant for files under lib/deploy/" do
-        expect(subject).to be_relevant_for("lib/deploy/foobar.rb")
-      end
-
-      it "should be relevant for files with cap as a word in their name" do
-        expect(subject).to be_relevant_for("script/a_cap_ital_idea.sh")
-      end
-
-      it "should not be relevant for files with 'cap' as part of another word" do
-        expect(subject).to_not be_relevant_for("a_capital_idea.rb")
-      end
-    end
-
-    describe 'OpsWorksChecklist' do
-      subject { Checklists::OpsWorksChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for any file with opsworks in the name" do
-        expect(subject).to be_relevant_for("script/opsworks-foo.rb")
-      end
-
-      it "should be relevant for config/deploy.rb" do
-        expect(subject).to be_relevant_for("config/deploy.rb")
-      end
-
-      it "should be relevant for files under deploy/" do
-        expect(subject).to be_relevant_for("deploy/before_migrate.rb")
-      end
-
-      it "should be relevant for files under lib/deploy/" do
-        expect(subject).to be_relevant_for("lib/deploy/foobar.rb")
-      end
-    end
-
     describe 'RoutesChecklist' do
       subject { Checklists::RoutesChecklist.new }
 
@@ -184,59 +122,6 @@ describe Checklists do
 
       it "should be relevant for resque tasks" do
         expect(subject).to be_relevant_for("app/jobs/foobar_job.rb")
-      end
-    end
-
-    describe 'MigrationChecklist' do
-      subject { Checklists::MigrationChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for migrations" do
-        expect(subject).to be_relevant_for("db/migrate/hey_whats_up.rb")
-      end
-    end
-
-    describe "DockerfileChecklist" do
-      subject { Checklists::DockerfileChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for Dockerfile" do
-        expect(subject).to be_relevant_for("Dockerfile")
-      end
-    end
-
-    describe 'NixChecklist' do
-      subject { Checklists::NixChecklist.new }
-
-      it_behaves_like "a checklist class"
-
-      it "should be relevant for any nix file" do
-        expect(subject).to be_relevant_for("shell.nix")
-      end
-
-      it "should be relevant for any file in the nix directory" do
-        expect(subject).to be_relevant_for("nix/something.sh")
-      end
-
-      it "should be relevant for any Ruby package file" do
-        expect(subject).to be_relevant_for("Gemfile")
-        expect(subject).to be_relevant_for("Gemfile.lock")
-      end
-
-      it "should be relevant for any Node package file" do
-        expect(subject).to be_relevant_for("package.json")
-        expect(subject).to be_relevant_for("package-lock.json")
-      end
-
-      it "should be relevant for any Node package file in a subdirectory" do
-        expect(subject).to be_relevant_for("subdir/package.json")
-        expect(subject).to be_relevant_for("subdir/package-lock.json")
-      end
-
-      it "should be releavnt for any Python package file" do
-        expect(subject).to be_relevant_for("requirements.txt")
       end
     end
   end
