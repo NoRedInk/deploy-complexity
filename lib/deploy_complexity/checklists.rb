@@ -46,76 +46,6 @@ module Checklists
     end
   end
 
-  class ElmFactoriesChecklist < Checklist
-    def human_name
-      "Elm Factories"
-    end
-
-    def checklist
-      '
-- [ ] Elm fuzz tests: use [shortList](https://github.com/NoRedInk/NoRedInk/blob/72626abf20e44eb339dd60ebb716e9447910127f/ui/tests/SpecHelpers.elm#L59) when a list fuzzer is generating too many cases
-      '.strip
-    end
-
-    def relevant_for(files)
-      files.select { |file| file.start_with?("ui/tests/") }
-    end
-  end
-
-  class CapistranoChecklist < Checklist
-    def human_name
-      "Capistrano"
-    end
-
-    def checklist
-      "
-The process for testing capistrano is to deploy the capistrano changes branch to staging prior to merging to master and verify the deploy doesn't explode.
-
-- [ ] Make a branch with capistrano changes
-- [ ] Wait for free time to test staging
-- [ ] Reset/deploy that branch to staging using the normal jenkins deploy process
-- [ ] Verify the deploy passes
-  - If it doesn't, fix the branch and redeploy until it works
-  - [ ] If it does, reset back to origin/master and request review of the PR
-      ".strip
-    end
-
-    def relevant_for(files)
-      files.select do |file|
-        file == "Capfile" \
-          || file == "Gemfile" \
-          || file.start_with?("lib/capistrano/") \
-          || file.start_with?("lib/deploy/") \
-          || file.start_with?("config/deploy") \
-          || !file.match('.*[\b_\./]cap[\b_\./].*').nil?
-      end
-    end
-  end
-
-  class OpsWorksChecklist < Checklist
-    def human_name
-      "OpsWorks"
-    end
-
-    def checklist
-      "
-- [ ] Change the source code branch for staging to the branch being tested in the opsworks UI
-- [ ] Rebase your code over `origin/staging` to prevent a successful deploy of your changes from making staging run possibly outdated code
-- [ ] Turn on an additional time-based instance in the layer ([see instructions](https://github.com/NoRedInk/wiki/blob/1f618042ed1d6b7c7297ec2672ae568e57944fde/ops-playbook/ops-plays.md#using-opsworks-to-bring-up-an-additional-time-based-instance))
-- [ ] Verify that the instances passes setup to online and doesn't fail
-      ".strip
-    end
-
-    def relevant_for(files)
-      files.select do |file|
-        file.start_with?("config/deploy") \
-          || file.include?("opsworks") \
-          || file.start_with?("deploy/") \
-          || file.start_with?("lib/deploy/")
-      end
-    end
-  end
-
   class RoutesChecklist < Checklist
     def human_name
       "Routes"
@@ -148,73 +78,6 @@ The process for testing capistrano is to deploy the capistrano changes branch to
     end
   end
 
-  class MigrationChecklist < Checklist
-    def human_name
-      "Migrations"
-    end
-
-    def checklist
-      '
-- [ ] If there are any potential [Slow Migrations](https://github.com/NoRedInk/wiki/blob/master/Slow-Migrations.md), make sure that:
-  - [ ] They are in separate PRs so each can be run independently
-  - [ ] There is a deployment plan where the resulting code on prod will support the db schema both before and after the migration
-- [ ] If migrations include dropping a column, modifying a column, or adding a non-nullable column, ensure the previously deployed model is prepared to handle both the previous schema and the new schema. ([See "Rails Migrations with Zero Downtime](https://blog.codeship.com/rails-migrations-zero-downtime/)")
-      '.strip
-    end
-
-    def relevant_for(files)
-      files.select { |file| file.start_with? "db/migrate/" }
-    end
-  end
-
-  class DockerfileChecklist < Checklist
-    def human_name
-      "Dockerfile"
-    end
-
-    def checklist
-      "
-- [ ] Dependencies added or changed in the Dockerfile are mirrored in the production/staging/demo environment [Cookbooks](https://github.com/NoRedInk/NoRedInk-opsworks/blob/master/noredink/recipes/setup.rb)
-- In case of dependency changes, ensure Capistrano deploys still work:
-  - [ ] Wait for free time to test staging
-  - [ ] Reset/deploy that branch to staging using the normal jenkins deploy process
-  - [ ] Verify the deploy passes
-    - If it doesn't, fix the branch and redeploy until it works
-    - [ ] If it does, reset back to origin/master and request review of the PR
-      ".strip
-    end
-
-    def relevant_for(files)
-      files.select { |file| file.include? "Dockerfile" }
-    end
-  end
-
-  class NixChecklist < Checklist
-    def human_name
-      "Nix"
-    end
-
-    def checklist
-      '
-- [Instructions on how to use Nix](https://github.com/NoRedInk/wiki/blob/master/engineering/using-nix.md)
-- [ ] changes build successfully with Nix (`nix-shell --pure` to check)
-- [ ] once approved, but before merging, make sure to update the Nix cache so that other people don\'t have to rebuild all changes. Run `script/cache_nix_shell.sh`.
-      '
-    end
-
-    def relevant_for(files)
-      files.select do |file|
-        file.start_with?("nix") \
-          || file.end_with?("nix") \
-          || file == "Gemfile" \
-          || file == "Gemfile.lock" \
-          || file.end_with?("package.json") \
-          || file.end_with?("package-lock.json") \
-          || file == "requirements.txt"
-      end
-    end
-  end
-
   # all done!
   # rubocop:enable Style/Documentation
   # rubocop:enable Metrics/LineLength
@@ -236,19 +99,16 @@ The process for testing capistrano is to deploy the capistrano changes branch to
 
   module_function
 
-  CHECKLISTS = [
-    RubyFactoriesChecklist,
-    ElmFactoriesChecklist,
-    CapistranoChecklist,
-    OpsWorksChecklist,
-    RoutesChecklist,
-    ResqueChecklist,
-    MigrationChecklist,
-    DockerfileChecklist,
-    NixChecklist
-  ].freeze
+  def checklists
+    [
+      RubyFactoriesChecklist,
+      RoutesChecklist,
+      ResqueChecklist
+    ].freeze
+  end
 
-  def for_files(files)
-    Checker.new(CHECKLISTS).for_files(files)
+  def for_files(checklists, files)
+    puts "Applying %s" % [checklists.join(",").gsub(/Checklists::/, '')]
+    Checker.new(checklists).for_files(files)
   end
 end
