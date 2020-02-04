@@ -28,6 +28,7 @@ module DeployComplexity
       github = Github.new(options[:gh_url])
       dirstat = options[:dirstat]
       stat = options[:stat]
+      dir = options[:dir]
 
       range = "#{base}...#{to}"
 
@@ -36,21 +37,18 @@ module DeployComplexity
 
       time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
-      # TODO only commits in given folder.
-      # `git log path` should work
-      commits = `git log --oneline #{range}`.split(/\n/)
+      commits = `git log #{dir} --oneline #{range}`.split(/\n/)
       merges = commits.grep(/Merges|\#\d+/)
 
-      # TODO git diff takes a path like this
-      # git diff --options -- path
-      shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
-      names_only = `git diff --name-only #{range}`
+      diffPath = `-- #{dir}` if dir
+      shortstat = `git diff --shortstat --summary #{range} #{diffPath}`.split(/\n/)
+      names_only = `git diff --name-only #{range} #{diffPath}`
       changed_files = DeployComplexity::ChangedFiles.new(names_only)
 
-      dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
+      dirstat = `git diff --dirstat=lines,cumulative #{range} #{diffPath}` if dirstat
       # TODO: investigate summarizing language / spec content based on file suffix,
       # and possibly per PR, or classify frontend, backend, spec changes
-      stat = `git diff --stat #{range}` if stat
+      stat = `git diff --stat #{range} #{diffPath}` if stat
 
       # TODO: scan for changes to app/jobs and report changes to params
       formatter_attributes = {
