@@ -27,6 +27,10 @@ optparse = OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
     last_n_deploys = e.to_i
     last_n_deploys = nil if last_n_deploys.zero?
   end
+  opts.on("--dir",
+          "Checked directory containing changes") do |dir|
+    options[:dir] = dir || ""
+  end
   opts.on("--dirstat",
           "Statistics on directory changes") { options[:dirstat] = true }
   opts.on("--stat",
