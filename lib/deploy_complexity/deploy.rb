@@ -28,7 +28,7 @@ module DeployComplexity
       github = Github.new(options[:gh_url])
       dirstat = options[:dirstat]
       stat = options[:stat]
-      dir = options[:dir]
+      path = options[:path]
 
       range = "#{base}...#{to}"
 
@@ -37,10 +37,10 @@ module DeployComplexity
 
       time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
-      commits = `git log #{dir} --oneline #{range}`.split(/\n/)
+      commits = `git log #{path} --oneline #{range}`.split(/\n/)
       merges = commits.grep(/Merges|\#\d+/)
 
-      diffPath = `-- #{dir}` if dir
+      diffPath = `-- #{path}` if path
       shortstat = `git diff --shortstat --summary #{range} #{diffPath}`.split(/\n/)
       names_only = `git diff --name-only #{range} #{diffPath}`
       changed_files = DeployComplexity::ChangedFiles.new(names_only)
