@@ -36,9 +36,13 @@ module DeployComplexity
 
       time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
+      # TODO only commits in given folder.
+      # `git log path` should work
       commits = `git log --oneline #{range}`.split(/\n/)
       merges = commits.grep(/Merges|\#\d+/)
 
+      # TODO git diff takes a path like this
+      # git diff --options -- path
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
       changed_files = DeployComplexity::ChangedFiles.new(names_only)
