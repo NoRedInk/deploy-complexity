@@ -28,6 +28,7 @@ module DeployComplexity
       github = Github.new(options[:gh_url])
       dirstat = options[:dirstat]
       stat = options[:stat]
+      pattern = options[:pattern]
 
       range = "#{base}...#{to}"
 
@@ -38,6 +39,8 @@ module DeployComplexity
 
       commits = `git log --oneline #{range}`.split(/\n/)
       merges = commits.grep(/Merges|\#\d+/)
+      pattern = Regexp.new(pattern) if pattern
+      merges = merges.select { |m| makes_changes_to(m, pattern) } if pattern
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
@@ -154,6 +157,12 @@ module DeployComplexity
           }
         end
       end.compact
+    end
+
+    def makes_changes_to(merge, pattern)
+      commithash = merge.split(' ')[0]
+      commits = `git log -m -1 --name-only --first-parent --pretty="format:" #{commithash}`.split(/\n/)
+      commits.any? { |commit| pattern =~ commit }
     end
   end
 end
