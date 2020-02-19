@@ -9,6 +9,7 @@ as well direct links to the github diff for the deploy, links to migrations, and
 individual PRs.
 
 ## Examples
+
 ```
 $ deploy-complexity.rb
 Displays code that would be promoted if staging deployed to production, or master
@@ -21,6 +22,8 @@ $ deploy-complexity.rb -d 3
 Displays the last 3 deploys on production
 $ deploy-complexity.rb -b staging -d
 Show changes from every single staging deploy
+$ deploy-complexity.rb --pattern '^subdir/'
+Show only PRs that make modifications to files in the subdir/ directory.
 ```
 
 ### For Testing
@@ -42,20 +45,20 @@ module Checklists
     def human_name
       "Blarg!"
     end
-    
+
     def checklist
     '- [ ] Removed extraneous blargh'.strip
     end
-    
+
     def relevant_for(files)
-      files.select do |file| 
+      files.select do |file|
         file.ends_with(".rb") && IO.read(file) =~ /blargh/
       end
     end
   end
 
   module_function
-  
+
   # List of checklists to run
   def checklists
     [BlarghDetector].freeze
