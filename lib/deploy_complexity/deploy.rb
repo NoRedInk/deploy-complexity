@@ -28,7 +28,6 @@ module DeployComplexity
       github = Github.new(options[:gh_url])
       dirstat = options[:dirstat]
       stat = options[:stat]
-      pattern = options[:pattern]
 
       range = "#{base}...#{to}"
 
@@ -38,9 +37,7 @@ module DeployComplexity
       time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
       commits = `git log --oneline #{range}`.split(/\n/)
-      merges = commits.grep(/Merges|\#\d+/)
-      pattern = Regexp.new(pattern) if pattern
-      merges = merges.select { |m| makes_changes_to(m, pattern) } if pattern
+      merges = get_merges(commits, options[:pattern])
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
@@ -157,6 +154,13 @@ module DeployComplexity
           }
         end
       end.compact
+    end
+
+    def get_merges(commits, pattern)
+      merges = commits.grep(/Merges|\#\d+/)
+      pattern = Regexp.new(pattern) if pattern
+      merges = merges.select { |m| makes_changes_to(m, pattern) } if pattern
+      merges
     end
 
     def makes_changes_to(merge, pattern)
