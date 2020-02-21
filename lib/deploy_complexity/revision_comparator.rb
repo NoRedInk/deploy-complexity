@@ -23,7 +23,11 @@ module DeployComplexity
     private
 
     def source(revision, file)
-      `git show #{revision}:#{file}`
+      # A file may legitimately not exist, if it was created or deleted between
+      # the old and new revisions. `git show` will log to stderr in that case,
+      # introducing unhelpful noise in the complexity report. To prevent this we
+      # redirect stderr to `/dev/null`.
+      `git show #{revision}:#{file} 2>/dev/null`
     end
 
     def changes

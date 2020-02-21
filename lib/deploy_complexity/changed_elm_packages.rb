@@ -9,6 +9,10 @@ module DeployComplexity
     private
 
     def parse_dependencies(file)
+      # When a elm.json file gets created or deleted we might be comparing
+      # against a non-existing file. In that case we're passed an empty string.
+      return {} if file.empty?
+
       json = JSON.parse(file)
       dependencies = json.fetch("dependencies")
       test_dependencies = json.fetch("test-dependencies")
