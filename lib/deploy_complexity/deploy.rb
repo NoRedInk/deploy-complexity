@@ -39,13 +39,13 @@ module DeployComplexity
       commits = `git log --oneline #{range}`.split(/\n/)
       merges = get_merges(commits)
 
-      shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
+      shortstat = `git diff --shortstat --summary #{range} #{subdir}`.split(/\n/)
       changed_files = get_changed_files(range)
 
-      dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
+      dirstat = `git diff --dirstat=lines,cumulative #{range} #{subdir}` if dirstat
       # TODO: investigate summarizing language / spec content based on file suffix,
       # and possibly per PR, or classify frontend, backend, spec changes
-      stat = `git diff --stat #{range}` if stat
+      stat = `git diff --stat #{range} #{subdir}` if stat
 
       # TODO: scan for changes to app/jobs and report changes to params
       formatter_attributes = {
@@ -175,6 +175,10 @@ module DeployComplexity
 
     def pattern
       @pattern ||= options[:subdir] ? Regexp.new("^" + @options[:subdir]) : /.*/
+    end
+
+    def subdir
+      @options[:subdir] || ""
     end
   end
 end
