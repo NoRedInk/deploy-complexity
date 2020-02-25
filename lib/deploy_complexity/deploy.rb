@@ -40,8 +40,7 @@ module DeployComplexity
       merges = get_merges(commits)
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
-      names_only = `git diff --name-only #{range}`
-      changed_files = DeployComplexity::ChangedFiles.new(names_only)
+      changed_files = get_changed_files(range)
 
       dirstat = `git diff --dirstat=lines,cumulative #{range}` if dirstat
       # TODO: investigate summarizing language / spec content based on file suffix,
@@ -160,6 +159,12 @@ module DeployComplexity
       merges = commits.grep(/Merges|\#\d+/)
       merges = merges.select { |m| makes_changes_to(m) }
       merges
+    end
+
+    def get_changed_files(range)
+      files = `git diff --name-only #{range}`
+      filtered = files.split(/\n/).select { |f| pattern =~ f }.join('\n')
+      changed_files = DeployComplexity::ChangedFiles.new(filtered)
     end
 
     def makes_changes_to(merge)
