@@ -15,7 +15,7 @@ require 'deploy_complexity/github'
 module DeployComplexity
   # The main module for deploy complexity that parses output from git
   # and returns information on the deploy
-  class Deploy
+  class Deploy # rubocop:disable Metrics/ClassLength
     # deploys are the delta from base -> to, so to contains commits to add to base
 
     def initialize(base, to, options)
@@ -26,10 +26,6 @@ module DeployComplexity
 
     def generate
       github = Github.new(options[:gh_url])
-      dirstat = options[:dirstat]
-      stat = options[:stat]
-
-      range = "#{base}...#{to}"
 
       # tag_revision = `git rev-parse --short #{to}`.chomp
       revision = `git rev-list --abbrev-commit -n1 #{to}`.chomp
@@ -39,13 +35,7 @@ module DeployComplexity
       commits = `git log --oneline #{range}`.split(/\n/)
       merges = get_merges(commits)
 
-      shortstat = `git diff --shortstat --summary #{range} #{subdir}`.split(/\n/)
       changed_files = get_changed_files(range)
-
-      dirstat = `git diff --dirstat=lines,cumulative #{range} #{subdir}` if dirstat
-      # TODO: investigate summarizing language / spec content based on file suffix,
-      # and possibly per PR, or classify frontend, backend, spec changes
-      stat = `git diff --stat #{range} #{subdir}` if stat
 
       # TODO: scan for changes to app/jobs and report changes to params
       formatter_attributes = {
@@ -179,6 +169,24 @@ module DeployComplexity
 
     def subdir
       @options[:subdir] || ""
+    end
+
+    def range
+      "#{@base}...#{@to}"
+    end
+
+    def shortstat
+      `git diff --shortstat --summary #{range} #{subdir}`.split(/\n/)
+    end
+
+    def dirstat
+      `git diff --dirstat=lines,cumulative #{range} #{subdir}` if @options[:dirstat]
+    end
+
+    def stat
+      # TODO: investigate summarizing language / spec content based on file suffix,
+      # and possibly per PR, or classify frontend, backend, spec changes
+      `git diff --stat #{range} #{subdir}` if @options[:stat]
     end
   end
 end
