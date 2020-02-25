@@ -164,7 +164,7 @@ module DeployComplexity
     def get_changed_files(range)
       files = `git diff --name-only #{range}`
       filtered = files.split(/\n/).select { |f| pattern =~ f }.join('\n')
-      changed_files = DeployComplexity::ChangedFiles.new(filtered)
+      DeployComplexity::ChangedFiles.new(filtered)
     end
 
     def makes_changes_to(merge)
@@ -174,7 +174,7 @@ module DeployComplexity
     end
 
     def pattern
-      @pattern ||= options[:pattern] ? Regexp.new(@options[:pattern]) : /.*/
+      @pattern ||= options[:subdir] ? Regexp.new("^" + @options[:subdir]) : /.*/
     end
   end
 end

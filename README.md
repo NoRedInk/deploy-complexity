@@ -22,7 +22,7 @@ $ deploy-complexity.rb -d 3
 Displays the last 3 deploys on production
 $ deploy-complexity.rb -b staging -d
 Show changes from every single staging deploy
-$ deploy-complexity.rb --pattern '^subdir/'
+$ deploy-complexity.rb --subdir 'subdir/'
 Show only PRs that make modifications to files in the subdir/ directory.
 ```
 

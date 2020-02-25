@@ -27,9 +27,9 @@ optparse = OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
     last_n_deploys = e.to_i
     last_n_deploys = nil if last_n_deploys.zero?
   end
-  opts.on("-p", "--pattern PATTERN", String,
-          "Only count PRs that make changes to files matching this pattern") do |pattern|
-    options[:pattern] = pattern
+  opts.on("-p", "--subdir PATTERN", String,
+          "Only count PRs that make changes to files in this directory") do |subdir|
+    options[:subdir] = subdir
   end
   opts.on("--dirstat",
           "Statistics on directory changes") { options[:dirstat] = true }
