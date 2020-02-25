@@ -37,7 +37,7 @@ module DeployComplexity
       time_delta = time_between_deploys(Git.safe_name(base), Git.safe_name(to))
 
       commits = `git log --oneline #{range}`.split(/\n/)
-      merges = get_merges(commits, options)
+      merges = get_merges(commits)
 
       shortstat = `git diff --shortstat --summary #{range}`.split(/\n/)
       names_only = `git diff --name-only #{range}`
@@ -156,17 +156,20 @@ module DeployComplexity
       end.compact
     end
 
-    def get_merges(commits, options)
+    def get_merges(commits)
       merges = commits.grep(/Merges|\#\d+/)
-      pattern = Regexp.new(options[:pattern]) if options[:pattern]
-      merges = merges.select { |m| makes_changes_to(m, pattern) } if pattern
+      merges = merges.select { |m| makes_changes_to(m) }
       merges
     end
 
-    def makes_changes_to(merge, pattern)
+    def makes_changes_to(merge)
       commithash = merge.split(' ')[0]
       commits = `git log -m -1 --name-only --first-parent --pretty="format:" #{commithash}`.split(/\n/)
       commits.any? { |commit| pattern =~ commit }
+    end
+
+    def pattern
+      @pattern ||= options[:pattern] ? Regexp.new(@options[:pattern]) : /.*/
     end
   end
 end
