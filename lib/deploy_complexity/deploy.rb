@@ -176,17 +176,17 @@ module DeployComplexity
     end
 
     def shortstat
-      `git diff --shortstat --summary #{range} #{subdir}`.split(/\n/)
+      `git diff --shortstat --summary #{range} -- #{subdir}`.split(/\n/)
     end
 
     def dirstat
-      `git diff --dirstat=lines,cumulative #{range} #{subdir}` if @options[:dirstat]
+      `git diff --dirstat=lines,cumulative #{range} -- #{subdir}` if @options[:dirstat]
     end
 
     def stat
       # TODO: investigate summarizing language / spec content based on file suffix,
       # and possibly per PR, or classify frontend, backend, spec changes
-      `git diff --stat #{range} #{subdir}` if @options[:stat]
+      `git diff --stat #{range} -- #{subdir}` if @options[:stat]
     end
   end
 end
