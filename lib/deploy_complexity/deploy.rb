@@ -168,7 +168,7 @@ module DeployComplexity
     end
 
     def subdir
-      @options[:subdir] || ""
+      @options[:subdir] ? File.join(gitroot, @options[:subdir]) : ""
     end
 
     def range
@@ -187,6 +187,10 @@ module DeployComplexity
       # TODO: investigate summarizing language / spec content based on file suffix,
       # and possibly per PR, or classify frontend, backend, spec changes
       `git diff --stat #{range} -- #{subdir}` if @options[:stat]
+    end
+
+    def gitroot
+      `realpath --relative-to . $(git rev-parse --show-toplevel)`.strip()
     end
   end
 end
