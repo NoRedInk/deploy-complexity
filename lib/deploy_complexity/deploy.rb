@@ -190,7 +190,7 @@ module DeployComplexity
     end
 
     def gitroot
-      `realpath --relative-to . $(git rev-parse --show-toplevel)`.strip()
+      `realpath --relative-to . $(git rev-parse --show-toplevel)`.strip
     end
   end
 end
