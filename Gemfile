@@ -11,5 +11,6 @@ gem 'rubocop'
 
 group :test do
   gem 'rspec'
+  gem 'rspec-its'
   gem 'rspec-mocks'
 end
