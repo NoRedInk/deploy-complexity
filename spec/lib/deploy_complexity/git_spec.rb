@@ -10,5 +10,6 @@ describe DeployComplexity::Git do
     its(['origin/team/branch']) { is_expected.to eq 'team/branch' }
     its(['team/branch']) { is_expected.to eq 'team/branch' }
     its(['team/branch/a']) { is_expected.to eq 'team/branch/a' }
+    its([nil]) { is_expected.to be_nil }
   end
 end
