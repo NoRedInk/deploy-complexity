@@ -1,16 +1,29 @@
 with import (builtins.fetchTarball rec {
   # grab a hash from here: https://nixos.org/channels/
-  name = "nixpkgs-darwin-18.09pre153231.25d0880528d";
-  url = "https://github.com/nixos/nixpkgs/archive/25d0880528dcf0f79221b4f16ce64245dc068a84.tar.gz";
+  name = "nixpkgs-darwin-20.03pre214403.c23427de0d5";
+  url = "https://github.com/nixos/nixpkgs/archive/c23427de0d501009b9c6d77ff8dda3763c6eb1b4.tar.gz";
   # Hash obtained using `nix-prefetch-url --unpack <url>`
-  sha256 = "0f1w4dpyd2pdx48bkhj2c4k2868mbvc2b9kr5qbxi05brzp0nk5l";
+  sha256 = "0fgv4pyzn39y8ibskn37x9cabmg6gflisigr5l45bkplm06bss91";
 }) {};
+let
+  expectVersion = version: pkg:
+    let
+      actual = lib.getVersion pkg;
+    in
+    assert (lib.assertMsg (builtins.toString actual == version) ''
+      Expecting version of ${pkg.name} to be ${version} but got ${actual};
+      adjust the expected version or fetch/build the desired version of the package.
+    '');
+    pkg;
 
+  rubyVersion = lib.fileContents ./.ruby-version;
+  bundlerVersion = lib.fileContents ./.bundler-version;
+in
 stdenv.mkDerivation {
   name = "deploy-complexity";
   buildInputs = [
     git
-    ruby
-    bundler
+    (expectVersion rubyVersion ruby_2_5)
+    (expectVersion bundlerVersion bundler)
   ];
 }
