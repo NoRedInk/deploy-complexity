@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'deploy_complexity/checklists'
+require 'deploy_complexity/git'
 require 'deploy_complexity/pull_request'
 require 'optparse'
 require 'octokit'
@@ -12,7 +13,7 @@ class Options
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
-    b = (@branch || ENV['GIT_BRANCH'])&.chomp&.split(%r{/})&.last
+    b = DeployComplexity::Git.safe_name(@branch || ENV['GIT_BRANCH'])
     raise "--branch must be set" unless b
 
     b
