@@ -7,7 +7,7 @@ module DeployComplexity
 
     # converts origin/master -> master
     def safe_name(name)
-      name&.chomp&.sub(%r{^origin/}, '')
+      name&.strip&.delete_prefix('origin/')
     end
   end
 end
