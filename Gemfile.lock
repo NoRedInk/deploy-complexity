@@ -69,7 +69,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.11)
+  bundler (~> 2.1)
   deploy-complexity!
   pry
   pry-doc
