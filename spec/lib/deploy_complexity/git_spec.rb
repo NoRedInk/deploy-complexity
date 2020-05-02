@@ -8,7 +8,7 @@ describe DeployComplexity::Git do
     subject { DeployComplexity::Git.method(:safe_name) }
     its(['origin/master']) { is_expected.to eq 'master' }
     its(["origin/master\n"]) { is_expected.to eq 'master' }
-    its(["origin/master\n\n"]) { is_expected.to eq "master\n" }
+    its(["origin/master\n\n"]) { is_expected.to eq 'master' }
     its(['origin/team/branch']) { is_expected.to eq 'team/branch' }
     its(['team/branch']) { is_expected.to eq 'team/branch' }
     its(["team/branch\n"]) { is_expected.to eq "team/branch" }
