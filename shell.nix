@@ -17,11 +17,13 @@ let
 
   rubyVersion = lib.fileContents ./.ruby-version;
   bundlerVersion = lib.fileContents ./.bundler-version;
+
+  ruby = ruby_2_5;
 in stdenv.mkDerivation {
   name = "deploy-complexity";
   buildInputs = [
     git
-    (expectVersion rubyVersion ruby_2_5)
-    (expectVersion bundlerVersion (bundler.override { ruby = ruby_2_5; }))
+    (expectVersion rubyVersion ruby)
+    (expectVersion bundlerVersion (bundler.override { inherit ruby; }))
   ];
 }
