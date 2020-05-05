@@ -24,6 +24,6 @@ stdenv.mkDerivation {
   buildInputs = [
     git
     (expectVersion rubyVersion ruby_2_5)
-    (expectVersion bundlerVersion bundler)
+    (expectVersion bundlerVersion (bundler.override { ruby = ruby_2_5; }))
   ];
 }
