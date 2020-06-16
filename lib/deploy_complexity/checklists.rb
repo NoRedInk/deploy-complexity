@@ -4,6 +4,7 @@
 module Checklists
   # all checklists should inherit from this class. It makes sure that the
   # checklist output is consistent in the PR so we don't get duplicates.
+  # @abstract Subclass implements {#human_name}, {#checklist}, and {#relevant_for}
   class Checklist
     def id
       "checklist:#{self.class.name}"
@@ -20,6 +21,19 @@ module Checklists
     def for_pr_body
       "\n\n<!-- #{id} -->\n#{title}\n\n#{checklist}"
     end
+
+    # @!method human_name
+    #   Name of checklist item to show in subheading
+    #   @return [String]
+
+    # @!method checklist
+    #   Checklist items in markdown to display in PR
+    #   @return [String]
+
+    # @!method relevant_for(changes)
+    #   List of files relevant for including a particular Checklist on a PR
+    #   @param [Git::Diff] changes
+    #   @return [Array[Git::DiffFile]] matching file diffs
   end
 
   # all these subclasses should be self-descriptive from their classnames, so go
