@@ -108,7 +108,11 @@ module Checklists
   end
 
   def for_files(checklists, files)
-    puts "Applying %s" % [checklists.join(",").gsub(/Checklists::/, '')]
-    Checker.new(checklists).for_files(files)
+    puts "Checking for matches from %s" % [checklists.join(",").gsub(/Checklists::/, '')]
+    matching_checklists = Checker.new(checklists).for_files(files)
+    if matching_checklists.any?
+      puts "Matches found in %s" % [matching_checklists.keys.join(",").gsub(/Checklists::/, '')]
+    end
+    matching_checklists
   end
 end
