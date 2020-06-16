@@ -92,7 +92,8 @@ require 'git'
 require 'logger'
 
 puts "Found pull request #{pr}"
-git = Git.open(".", log: Logger.new(STDOUT))
+# TODO pass in git base-dir as an argument instead of defaulting to parent
+git = Git.open("..", log: Logger.new(STDOUT))
 # TODO handle multiple ancestors?
 common_ancestor = git.merge_base(pr.base, pr.head).first.sha
 
