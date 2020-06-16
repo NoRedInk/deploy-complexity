@@ -41,8 +41,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file.start_with?("spec/factories") }
+    def relevant_for(changes)
+      changes.select { |file| file.path.start_with?("spec/factories") }
     end
   end
 
@@ -57,8 +57,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file == "config/routes.rb" }
+    def relevant_for(changes)
+      changes.select { |file| file.path == "config/routes.rb" }
     end
   end
 
@@ -73,8 +73,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file.start_with? "app/jobs" }
+    def relevant_for(changes)
+      changes.select { |file| file.path.start_with? "app/jobs" }
     end
   end
 
@@ -88,10 +88,10 @@ module Checklists
       @checklists = checklists
     end
 
-    def for_files(files)
+    def for_files(changes)
       @checklists
         .map(&:new)
-        .map { |checker| [checker, checker.relevant_for(files)] }
+        .map { |checker| [checker, checker.relevant_for(changes).map(&:path)] }
         .to_h
         .reject { |_, values| values.empty? }
     end
@@ -107,9 +107,9 @@ module Checklists
     ].freeze
   end
 
-  def for_files(checklists, files)
+  def for_files(checklists, changes)
     puts "Checking for matches from %s" % [checklists.join(",").gsub(/Checklists::/, '')]
-    matching_checklists = Checker.new(checklists).for_files(files)
+    matching_checklists = Checker.new(checklists).for_files(changes)
     if matching_checklists.any?
       puts "Matches found in %s" % [matching_checklists.keys.join(",").gsub(/Checklists::/, '')]
     end

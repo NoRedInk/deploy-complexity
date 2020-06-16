@@ -97,8 +97,10 @@ git = Git.open("..", log: Logger.new(STDOUT))
 # TODO handle multiple ancestors?
 common_ancestor = git.merge_base(pr.base, pr.head).first.sha
 
-diff = git.gtree(common_ancestor).diff(pr.head)
-files_changed = diff.map { |file| file.path }
+# Returns a Git::Diff object, see
+# https://github.com/ruby-git/ruby-git/blob/master/lib/git/diff.rb
+# for documentation.
+pull_request_changes = git.gtree(common_ancestor).diff(pr.head)
 
 # conditionally load externally defined checklist from project
 if options.checklist
@@ -106,7 +108,7 @@ if options.checklist
   load options.checklist
 end
 
-checklists = Checklists.for_files(Checklists.checklists, files_changed)
+checklists = Checklists.for_files(Checklists.checklists, pull_request_changes)
 new_checklists = pr.update_with_checklists(checklists, options.dry_run)
 
 new_checklists.each do |checklist, files|
