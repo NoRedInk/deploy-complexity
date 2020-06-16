@@ -88,8 +88,16 @@ unless pr.present?
   exit 0
 end
 
+require 'git'
+require 'logger'
+
 puts "Found pull request #{pr}"
-files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
+git = Git.open(".", log: Logger.new(STDOUT))
+# TODO handle multiple ancestors?
+common_ancestor = git.merge_base(pr.base, pr.head).first.sha
+
+diff = git.gtree(common_ancestor).diff(pr.head)
+files_changed = diff.map { |file| file.path }
 
 # conditionally load externally defined checklist from project
 if options.checklist
