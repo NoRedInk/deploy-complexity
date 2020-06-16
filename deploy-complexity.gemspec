@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "octokit", "~> 4.0"
   spec.add_dependency "slack-notifier", "~> 2.3.2"
   spec.add_dependency "values", "~> 1.8.0"
+  spec.add_dependency "git", "~> 1.7.0"
 
   spec.required_ruby_version = ">= 2.5"
 end
