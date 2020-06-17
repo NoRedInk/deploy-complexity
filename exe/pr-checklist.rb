@@ -13,11 +13,13 @@ require 'git'
 class Options
   attr_writer :git_dir, :branch, :token, :org, :repo, :dry_run, :checklist
 
-  # Use the supplied git dir, find the .git directory in a parent directory
-  # recursively or fail out by using the current directory.
+  # Use the supplied git dir, GIT_DIR from environment, find the .git directory
+  # in a parent directory recursively or fail out by using the current
+  # directory.
   def git_dir
     (
       @git_dir ||
+      ENV['GIT_DIR'] ||
       DeployComplexity::Path.locate_file_in_ancestors(
         Pathname.getwd, Pathname.new('.git')
       ) ||
