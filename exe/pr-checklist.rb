@@ -58,7 +58,7 @@ end
 
 options = Options.new
 
-OptionParser.new do |opts|
+OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
   opts.on(
     "--git-dir DIR", String,
     "Project directory to run git commands from"
