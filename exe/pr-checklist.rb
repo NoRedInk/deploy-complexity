@@ -122,12 +122,18 @@ require 'logger'
 puts "Found pull request #{pr}"
 
 git = Git.open(options.git_dir)
-# TODO handle multiple ancestors?
+
+# Calculate the common ancestor where pr.head diverged from pr.base, so the diff
+# is of the unique changes in pr.head and not the changes that have since merged
+# into pr.base. Unfortunately, it's not clear how to determine which merge base
+# is best if there are multiple, so just selecting the first merge base.
 common_ancestor = git.merge_base(pr.base, pr.head).first.sha
 
 # Returns a Git::Diff object, see
-# https://github.com/ruby-git/ruby-git/blob/master/lib/git/diff.rb
-# for documentation.
+# https://github.com/ruby-git/ruby-git/blob/master/lib/git/diff.rb for
+# documentation, but roughly it's an Enumerable set of Git::FileDiff objects,
+# each of which respond to #patch for the diff contents, or #path for each file
+# changed.
 pull_request_changes = git.gtree(common_ancestor).diff(pr.head)
 
 # conditionally load externally defined checklist from project
