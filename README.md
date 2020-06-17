@@ -54,9 +54,9 @@ module Checklists
     '- [ ] Removed extraneous blargh'.strip
     end
 
-    def relevant_for(files)
-      files.select do |file|
-        file.ends_with(".rb") && IO.read(file) =~ /blargh/
+    def relevant_for(changes)
+      changes.select do |file|
+        file.path.ends_with(".rb") && file.patch =~ /blargh/
       end
     end
   end
