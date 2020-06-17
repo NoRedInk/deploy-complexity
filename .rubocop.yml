@@ -33,7 +33,7 @@ Metrics/CyclomaticComplexity:
   Max: 10
 
 # 120-column lines are fine.
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Metrics/BlockLength:

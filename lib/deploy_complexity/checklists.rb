@@ -42,7 +42,7 @@ module Checklists
 
   # Github-flavored Markdown doesn't wrap line breaks, so we need to disable
   # line length checks for now.
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
 
   class RubyFactoriesChecklist < Checklist
     def human_name
@@ -94,7 +94,7 @@ module Checklists
 
   # all done!
   # rubocop:enable Style/Documentation
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 
   # Check for checklists, given a list of checkers
   class Checker
