@@ -5,10 +5,10 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in deploy-complexity.gemspec
 gemspec
 
+gem 'git'
 gem 'pry'
 gem 'pry-doc'
 gem 'rubocop'
-gem 'git'
 
 group :test do
   gem 'rspec'

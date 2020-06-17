@@ -19,7 +19,8 @@ class Options
     (
       @git_dir ||
       DeployComplexity::Path.locate_file_in_ancestors(
-        Pathname.getwd, Pathname.new('.git')) ||
+        Pathname.getwd, Pathname.new('.git')
+      ) ||
       "."
     ).to_s
   end

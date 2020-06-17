@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module DeployComplexity
+  # Helper methods for File/Pathname operations
   module Path
     # Searches for a directory containing file as child in any of the directories
     # in the hierarchy above it. Returns nil on no match.
