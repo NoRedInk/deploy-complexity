@@ -72,7 +72,7 @@ module Checklists
     end
 
     def relevant_for(changes)
-      changes.select { |file| file.path.ends_with?("config/routes.rb") }
+      changes.select { |file| file.path.end_with?("config/routes.rb") }
     end
   end
 

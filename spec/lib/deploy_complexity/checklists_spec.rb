@@ -4,6 +4,10 @@ require 'spec_helper'
 require 'deploy_complexity/checklists'
 
 describe Checklists do
+  def diff(path, patch: "")
+    double(path: path, patch: "")
+  end
+
   before(:all) do
     class TestChecklist < Checklists::Checklist
       def human_name
@@ -15,7 +19,7 @@ describe Checklists do
       end
 
       def relevant_for(files)
-        files.reject { |f| f == "no" }
+        files.reject { |f| f.path == "no" }
       end
     end
   end
@@ -51,7 +55,7 @@ describe Checklists do
 
     describe 'for_files' do
       it "has the relevant checklists" do
-        expect(checker.for_files(["foo"])).to include TestChecklist
+        expect(checker.for_files([diff("foo")])).to include TestChecklist
       end
 
       it "does not have any checklists at all for no file" do
@@ -59,7 +63,7 @@ describe Checklists do
       end
 
       it "does not have irrelevant checklists" do
-        expect(checker.for_files(["no"])).to_not include TestChecklist
+        expect(checker.for_files([diff("no")])).to_not include TestChecklist
       end
     end
   end
@@ -88,7 +92,9 @@ describe Checklists do
 
   describe 'Checklists' do
     define :be_relevant_for do |file|
-      match { |actual| actual.relevant_for([file]).member?(file) }
+      match do |actual|
+        actual.relevant_for([diff(file)]).map(&:path).member?(file)
+      end
     end
 
     describe 'RubyFactoriesChecklist' do
