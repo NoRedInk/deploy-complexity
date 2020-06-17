@@ -9,7 +9,30 @@ require 'octokit'
 
 # options and validation
 class Options
-  attr_writer :branch, :token, :org, :repo, :dry_run, :checklist
+  attr_writer :git_dir, :branch, :token, :org, :repo, :dry_run, :checklist
+
+  # Use the supplied git dir, find the .git directory in a parent directory
+  # recursively or fail out by using the current directory.
+  def git_dir
+    (@git_dir ||
+     locate_file_in_ancestors(Pathname.getwd, Pathname.new('.git')) ||
+     ".").to_s
+  end
+
+  # Searches for a directory containing file as child in any of the directories
+  # in the hierarchy above it. Returns nil on no match.
+  # @param [Pathname] path
+  # @param [Pathname] file
+  # @return [Pathname, nil]
+  def locate_file_in_ancestors(path, file)
+    if path.children.find { |x| x.basename == file }
+      path
+    elsif path == Pathname.new('/')
+      nil
+    else
+      locate_file_in_ancestors(path.parent, file)
+    end
+  end
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
@@ -46,6 +69,11 @@ end
 options = Options.new
 
 OptionParser.new do |opts|
+  opts.on(
+    "--git-dir DIR", String,
+    "Project directory to run git commands from"
+  ) { |dir| options.git_dir = dir }
+
   opts.on(
     "-b", "--branch BRANCH", String,
     "Which branch should we examine?"
@@ -92,8 +120,8 @@ require 'git'
 require 'logger'
 
 puts "Found pull request #{pr}"
-# TODO pass in git base-dir as an argument instead of defaulting to parent
-git = Git.open("..", log: Logger.new(STDOUT))
+
+git = Git.open(options.git_dir)
 # TODO handle multiple ancestors?
 common_ancestor = git.merge_base(pr.base, pr.head).first.sha
 
