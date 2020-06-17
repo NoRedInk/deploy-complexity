@@ -4,8 +4,9 @@ require 'spec_helper'
 require 'deploy_complexity/checklists'
 
 describe Checklists do
+  # represents a Git::FileDiff
   def diff(path, patch: "")
-    double(path: path, patch: "")
+    double(path: path, patch: patch)
   end
 
   class TestChecklist < Checklists::Checklist
@@ -19,6 +20,23 @@ describe Checklists do
 
     def relevant_for(files)
       files.reject { |f| f.path == "no" }
+    end
+  end
+
+  class PatchChecklist < Checklists::Checklist
+    def human_name
+      "patches"
+    end
+
+    def checklist
+      "- [] did you mean to change a dependency"
+    end
+
+    def relevant_for(changes)
+      changes.select do |file|
+        insertions = file.patch.split(/\n/).select { |x| x.match(/^\+/) }
+        insertions.any? { |x| x.match(/add_dependency/) }
+      end
     end
   end
 
@@ -85,6 +103,37 @@ describe Checklists do
       it "has the checklist" do
         expect(subject.for_pr_body).to include(subject.checklist)
       end
+    end
+  end
+
+  describe PatchChecklist do
+    it_behaves_like "a checklist class"
+
+    it 'matches on a diff insertion' do
+      patch = <<DIFF
+diff --git a/deploy-complexity.gemspec b/deploy-complexity.gemspec
+index 1f82fcb..b2e4ffb 100644
+--- a/deploy-complexity.gemspec
++++ b/deploy-complexity.gemspec
+@@ -26,10 +26,10 @@ Gem::Specification.new do |spec|
+   spec.add_development_dependency "bundler", "~> 2.1"
+   spec.add_development_dependency "rake", "~> 13.0"
+
++  spec.add_dependency "git", "~> 1.7.0"
+   spec.add_dependency "octokit", "~> 4.0"
+   spec.add_dependency "slack-notifier", "~> 2.3.2"
+   spec.add_dependency "values", "~> 1.8.0"
+-  spec.add_dependency "git", "~> 1.7.0"
+
+   spec.required_ruby_version = ">= 2.5"
+ end
+DIFF
+
+      spec_add = diff('deploy-complexity.gemspec', patch: patch)
+      spec_removal = diff('foo', patch: "\n-  spec.add_dependency\n")
+      changes = [spec_add, spec_removal]
+      relevant = PatchChecklist.new.relevant_for(changes)
+      expect(relevant).to match_array([spec_add])
     end
   end
 
