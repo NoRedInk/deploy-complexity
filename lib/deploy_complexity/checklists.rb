@@ -56,7 +56,7 @@ module Checklists
     end
 
     def relevant_for(changes)
-      changes.select { |file| file.path.start_with?("spec/factories") }
+      changes.select { |file| file.path.include?("spec/factories") }
     end
   end
 
@@ -72,7 +72,7 @@ module Checklists
     end
 
     def relevant_for(changes)
-      changes.select { |file| file.path == "config/routes.rb" }
+      changes.select { |file| file.path.ends_with?("config/routes.rb") }
     end
   end
 
@@ -88,7 +88,7 @@ module Checklists
     end
 
     def relevant_for(changes)
-      changes.select { |file| file.path.start_with? "app/jobs" }
+      changes.select { |file| file.path.include?("app/jobs") }
     end
   end
 
