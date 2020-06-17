@@ -8,19 +8,17 @@ describe Checklists do
     double(path: path, patch: "")
   end
 
-  before(:all) do
-    class TestChecklist < Checklists::Checklist
-      def human_name
-        "Human Name"
-      end
+  class TestChecklist < Checklists::Checklist
+    def human_name
+      "Human Name"
+    end
 
-      def checklist
-        "CHECKLIST"
-      end
+    def checklist
+      "CHECKLIST"
+    end
 
-      def relevant_for(files)
-        files.reject { |f| f.path == "no" }
-      end
+    def relevant_for(files)
+      files.reject { |f| f.path == "no" }
     end
   end
 
