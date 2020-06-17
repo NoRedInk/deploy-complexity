@@ -6,6 +6,7 @@ require 'deploy_complexity/git'
 require 'deploy_complexity/pull_request'
 require 'optparse'
 require 'octokit'
+require 'git'
 
 # options and validation
 class Options
@@ -115,9 +116,6 @@ unless pr.present?
   puts "Could not find pull request!"
   exit 0
 end
-
-require 'git'
-require 'logger'
 
 puts "Found pull request #{pr}"
 
