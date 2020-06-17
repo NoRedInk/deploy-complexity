@@ -34,6 +34,10 @@ Use `GIT_DIR` to run a local copy of `pr-checklist` or `deploy-complexity` again
 GIT_DIR=../repo bundle exec ./exe/pr-checklist.rb -b branch
 ```
 
+Alternatively, `pr-checklist` accepts a `--git-dir` flag. If no git directory is
+specified, it will look for a parent directory containing `.git` and if not
+fallback to current directory.
+
 ### Custom Checklists
 
 If you want to define checklists within your repo, create a ruby file `tools/deploy_complexity/checklists.rb`:
