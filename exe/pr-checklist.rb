@@ -4,6 +4,7 @@
 require 'deploy_complexity/checklists'
 require 'deploy_complexity/git'
 require 'deploy_complexity/pull_request'
+require 'deploy_complexity/path'
 require 'optparse'
 require 'octokit'
 require 'git'
@@ -15,24 +16,12 @@ class Options
   # Use the supplied git dir, find the .git directory in a parent directory
   # recursively or fail out by using the current directory.
   def git_dir
-    (@git_dir ||
-     locate_file_in_ancestors(Pathname.getwd, Pathname.new('.git')) ||
-     ".").to_s
-  end
-
-  # Searches for a directory containing file as child in any of the directories
-  # in the hierarchy above it. Returns nil on no match.
-  # @param [Pathname] path
-  # @param [Pathname] file
-  # @return [Pathname, nil]
-  def locate_file_in_ancestors(path, file)
-    if path.children.find { |x| x.basename == file }
-      path
-    elsif path == Pathname.new('/')
-      nil
-    else
-      locate_file_in_ancestors(path.parent, file)
-    end
+    (
+      @git_dir ||
+      DeployComplexity::Path.locate_file_in_ancestors(
+        Pathname.getwd, Pathname.new('.git')) ||
+      "."
+    ).to_s
   end
 
   def branch
