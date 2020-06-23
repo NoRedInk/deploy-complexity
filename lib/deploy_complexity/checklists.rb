@@ -4,6 +4,7 @@
 module Checklists
   # all checklists should inherit from this class. It makes sure that the
   # checklist output is consistent in the PR so we don't get duplicates.
+  # @abstract Subclass implements {#human_name}, {#checklist}, and {#relevant_for}
   class Checklist
     def id
       "checklist:#{self.class.name}"
@@ -20,6 +21,19 @@ module Checklists
     def for_pr_body
       "\n\n<!-- #{id} -->\n#{title}\n\n#{checklist}"
     end
+
+    # @!method human_name
+    #   Name of checklist item to show in subheading
+    #   @return [String]
+
+    # @!method checklist
+    #   Checklist items in markdown to display in PR
+    #   @return [String]
+
+    # @!method relevant_for(changes)
+    #   List of files relevant for including a particular Checklist on a PR
+    #   @param [Git::Diff] changes
+    #   @return [Array[Git::DiffFile]] matching file diffs
   end
 
   # all these subclasses should be self-descriptive from their classnames, so go
@@ -28,7 +42,7 @@ module Checklists
 
   # Github-flavored Markdown doesn't wrap line breaks, so we need to disable
   # line length checks for now.
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
 
   class RubyFactoriesChecklist < Checklist
     def human_name
@@ -41,8 +55,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file.start_with?("spec/factories") }
+    def relevant_for(changes)
+      changes.select { |file| file.path.include?("spec/factories") }
     end
   end
 
@@ -57,8 +71,8 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file == "config/routes.rb" }
+    def relevant_for(changes)
+      changes.select { |file| file.path.end_with?("config/routes.rb") }
     end
   end
 
@@ -73,14 +87,14 @@ module Checklists
       '.strip
     end
 
-    def relevant_for(files)
-      files.select { |file| file.start_with? "app/jobs" }
+    def relevant_for(changes)
+      changes.select { |file| file.path.include?("app/jobs") }
     end
   end
 
   # all done!
   # rubocop:enable Style/Documentation
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 
   # Check for checklists, given a list of checkers
   class Checker
@@ -88,10 +102,10 @@ module Checklists
       @checklists = checklists
     end
 
-    def for_files(files)
+    def for_files(changes)
       @checklists
         .map(&:new)
-        .map { |checker| [checker, checker.relevant_for(files)] }
+        .map { |checker| [checker, checker.relevant_for(changes).map(&:path)] }
         .to_h
         .reject { |_, values| values.empty? }
     end
@@ -107,8 +121,8 @@ module Checklists
     ].freeze
   end
 
-  def for_files(checklists, files)
-    puts "Applying %s" % [checklists.join(",").gsub(/Checklists::/, '')]
-    Checker.new(checklists).for_files(files)
+  def for_files(checklists, changes)
+    puts "Checking for matches from %s" % [checklists.join(",").gsub(/Checklists::/, '')]
+    Checker.new(checklists).for_files(changes)
   end
 end

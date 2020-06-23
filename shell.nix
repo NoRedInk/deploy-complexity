@@ -18,7 +18,7 @@ let
   rubyVersion = lib.fileContents ./.ruby-version;
   bundlerVersion = lib.fileContents ./.bundler-version;
 
-  ruby = ruby_2_5;
+  ruby = ruby_2_6;
 in stdenv.mkDerivation {
   name = "deploy-complexity";
   buildInputs = [

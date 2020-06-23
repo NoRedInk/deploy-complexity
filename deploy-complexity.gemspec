@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 2.1"
   spec.add_development_dependency "rake", "~> 13.0"
 
+  spec.add_dependency "git", "~> 1.7.0"
   spec.add_dependency "octokit", "~> 4.0"
   spec.add_dependency "slack-notifier", "~> 2.3.2"
   spec.add_dependency "values", "~> 1.8.0"

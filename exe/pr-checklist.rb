@@ -4,12 +4,28 @@
 require 'deploy_complexity/checklists'
 require 'deploy_complexity/git'
 require 'deploy_complexity/pull_request'
+require 'deploy_complexity/path'
 require 'optparse'
 require 'octokit'
+require 'git'
 
 # options and validation
 class Options
-  attr_writer :branch, :token, :org, :repo, :dry_run, :checklist
+  attr_writer :git_dir, :branch, :token, :org, :repo, :dry_run, :checklist
+
+  # Use the supplied git dir, GIT_DIR from environment, find the .git directory
+  # in a parent directory recursively or fail out by using the current
+  # directory.
+  def git_dir
+    (
+      @git_dir ||
+      ENV['GIT_DIR'] ||
+      DeployComplexity::Path.locate_file_in_ancestors(
+        Pathname.getwd, Pathname.new('.git')
+      ) ||
+      "."
+    ).to_s
+  end
 
   def branch
     # origin/master or master are both fine, but we need to drop origin/
@@ -45,7 +61,12 @@ end
 
 options = Options.new
 
-OptionParser.new do |opts|
+OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
+  opts.on(
+    "--git-dir DIR", String,
+    "Project directory to run git commands from"
+  ) { |dir| options.git_dir = dir }
+
   opts.on(
     "-b", "--branch BRANCH", String,
     "Which branch should we examine?"
@@ -89,7 +110,21 @@ unless pr.present?
 end
 
 puts "Found pull request #{pr}"
-files_changed = `git diff --name-only '#{pr.base}...#{pr.head}'`.split("\n")
+
+git = Git.open(options.git_dir)
+
+# Calculate the common ancestor where pr.head diverged from pr.base, so the diff
+# is of the unique changes in pr.head and not the changes that have since merged
+# into pr.base. Unfortunately, it's not clear how to determine which merge base
+# is best if there are multiple, so just selecting the first merge base.
+common_ancestor = git.merge_base(pr.base, pr.head).first.sha
+
+# Returns a Git::Diff object, see
+# https://github.com/ruby-git/ruby-git/blob/master/lib/git/diff.rb for
+# documentation, but roughly it's an Enumerable set of Git::FileDiff objects,
+# each of which respond to #patch for the diff contents, or #path for each file
+# changed.
+pull_request_changes = git.gtree(common_ancestor).diff(pr.head)
 
 # conditionally load externally defined checklist from project
 if options.checklist
@@ -97,7 +132,7 @@ if options.checklist
   load options.checklist
 end
 
-checklists = Checklists.for_files(Checklists.checklists, files_changed)
+checklists = Checklists.for_files(Checklists.checklists, pull_request_changes)
 new_checklists = pr.update_with_checklists(checklists, options.dry_run)
 
 new_checklists.each do |checklist, files|
