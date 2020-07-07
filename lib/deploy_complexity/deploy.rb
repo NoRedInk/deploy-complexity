@@ -129,7 +129,13 @@ module DeployComplexity
     # TODO: consider moving this to a separate parser and testing
     def pull_requests(merges)
       merges.map do |line|
-        line.match(/pull request #(\d+) from (.*)$/) do |m|
+        line.match(/Auto merge of #(\d+) - ([^,]+)/) do |m|
+          {
+            pr_number: m[1].to_i,
+            joiner: "-",
+            name: Git.safe_name(m[2])
+          }
+        end || line.match(/pull request #(\d+) from (.*)$/) do |m|
           {
             pr_number: m[1].to_i,
             joiner: "-",
