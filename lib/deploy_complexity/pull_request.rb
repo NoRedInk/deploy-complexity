@@ -21,7 +21,7 @@ class PullRequest
   end
 
   def to_s
-    "https://github.com/#{org_and_repo}/pulls/#{number}"
+    "https://github.com/#{org_and_repo}/pull/#{number}"
   end
 
   def base
