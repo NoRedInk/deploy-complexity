@@ -113,18 +113,27 @@ puts "Found pull request #{pr}"
 
 git = Git.open(options.git_dir)
 
-# Calculate the common ancestor where pr.head diverged from pr.base, so the diff
-# is of the unique changes in pr.head and not the changes that have since merged
+# Read the head from `git` instead of `pr` so we don't risk a race condition:
+#
+# 1. CI pulls a branch for a PR
+# 2. New commit lands on the PR's branch
+# 3. We ask for `pr.head`, which is newer than `git.object('HEAD')`
+#
+# This race condition breaks commands that rely on `head` below
+head = git.object('HEAD').sha
+
+# Calculate the common ancestor where head diverged from pr.base, so the diff
+# is of the unique changes in head and not the changes that have since merged
 # into pr.base. Unfortunately, it's not clear how to determine which merge base
 # is best if there are multiple, so just selecting the first merge base.
-common_ancestor = git.merge_base(pr.base, pr.head).first.sha
+common_ancestor = git.merge_base(pr.base, head).first.sha
 
 # Returns a Git::Diff object, see
 # https://github.com/ruby-git/ruby-git/blob/master/lib/git/diff.rb for
 # documentation, but roughly it's an Enumerable set of Git::FileDiff objects,
 # each of which respond to #patch for the diff contents, or #path for each file
 # changed.
-pull_request_changes = git.gtree(common_ancestor).diff(pr.head)
+pull_request_changes = git.gtree(common_ancestor).diff(head)
 
 # conditionally load externally defined checklist from project
 if options.checklist
