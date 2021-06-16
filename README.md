@@ -88,7 +88,7 @@ bundle exec pr-checklist.rb -b branch -c tools/deploy_complexity/checklists.rb -
 
 Where `fafafafa` would be used as the `HEAD`.
 
-This is useful if you run deploy-complexity on CI after merging `master` in, for instance. Else, the checklists would report on all incoming changes that are completely unrelated to the branch under analysis.
+This is useful if you run deploy-complexity after merging `master`. Without setting HEAD to the head of the PR pre-merge, the checklists would report on all incoming changes that are completely unrelated to the branch under analysis.
 
 ### Github Token
 
