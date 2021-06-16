@@ -76,6 +76,20 @@ And then execute the pr-checklist runner inside of CI using:
 bundle exec pr-checklist.rb -b branch -c tools/deploy_complexity/checklists.rb
 ```
 
+#### Overriding `HEAD`
+
+deploy-checklist will, by default, treat current `HEAD` as the `HEAD` commit for change tracking.
+
+It's possible to override that behavior like:
+
+```
+bundle exec pr-checklist.rb -b branch -c tools/deploy_complexity/checklists.rb --head-commit fafafafa
+```
+
+Where `fafafafa` would be used as the `HEAD`.
+
+This is useful if you run deploy-complexity on CI after merging `master` in, for instance. Else, the checklists would report on all incoming changes that are completely unrelated to the branch under analysis.
+
 ### Github Token
 
 pr-checklist.rb requires a github token with role REPO to edit PR descriptions and comment on a PR. Make sure that `GITHUB_TOKEN` is set in the environment.
