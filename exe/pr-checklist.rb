@@ -11,7 +11,7 @@ require 'git'
 
 # options and validation
 class Options
-  attr_writer :git_dir, :branch, :token, :org, :repo, :dry_run, :checklist
+  attr_writer :git_dir, :branch, :head_commit, :token, :org, :repo, :dry_run, :checklist
 
   # Use the supplied git dir, GIT_DIR from environment, find the .git directory
   # in a parent directory recursively or fail out by using the current
@@ -33,6 +33,11 @@ class Options
     raise "--branch must be set" unless b
 
     b
+  end
+
+  def head_commit
+    # Fall back to 'HEAD' unless specified
+    @head_commit || 'HEAD'
   end
 
   def token
@@ -71,6 +76,11 @@ OptionParser.new do |opts| # rubocop:disable Metrics/BlockLength
     "-b", "--branch BRANCH", String,
     "Which branch should we examine?"
   ) { |branch| options.branch = branch }
+
+  opts.on(
+    "-hc", "--head-commit HEAD", String,
+    "Use a custom head commit. Useful if you merge other stuff in before running this check."
+  ) { |head_commit| options.head_commit = head_commit }
 
   opts.on(
     "-t", "--token token", String,
@@ -120,7 +130,10 @@ git = Git.open(options.git_dir)
 # 3. We ask for `pr.head`, which is newer than `git.object('HEAD')`
 #
 # This race condition breaks commands that rely on `head` below
-head = git.object('HEAD').sha
+#
+# We also allow overriding the HEAD, since CI might change HEAD in a way that
+# interferes with checks here. (e.g. merging in master before running CI)
+head = git.object(options.head_commit).sha
 
 # Calculate the common ancestor where head diverged from pr.base, so the diff
 # is of the unique changes in head and not the changes that have since merged
