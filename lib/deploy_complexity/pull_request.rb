@@ -38,7 +38,7 @@ class PullRequest
     return {} if pr.nil?
 
     new_checklists =
-      checklists.reject { |checklist, _| pr.body.include? checklist.id }
+      checklists.reject { |checklist, _| pr.body&.include? checklist.id }
 
     unless checklists.empty?
       new_body = body_with_checklist(new_checklists)
@@ -92,7 +92,7 @@ class PullRequest
   end
 
   def body_with_checklist(checklists)
-    body = pr.body.clone
+    body = pr.body ? pr.body.clone : ""
 
     checklists.each do |checklist, _|
       body += checklist.for_pr_body
