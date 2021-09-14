@@ -61,6 +61,14 @@ describe PullRequest do
   describe 'update_with_checklists' do
     let(:checklists) { { checklist => ["file"] } }
 
+    context "when the checklist is nil" do
+      let(:body) { nil }
+
+      it "should add the checklist" do
+        expect(subject.update_with_checklists(checklists, false)).to include(checklist)
+      end
+    end
+
     context "when the checklist isn't present" do
       let(:body) { "" }
 
