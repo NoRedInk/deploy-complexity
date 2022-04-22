@@ -12,8 +12,8 @@ module DeployComplexity
       json = JSON.parse(file)
       dependencies = json.fetch("dependencies")
 
-      dependencies.each_with_object({}) do |(dependency, details), collection|
-        collection[dependency] = details.fetch("version")
+      dependencies.transform_values do |details|
+        details.fetch("version")
       end
     end
   end
