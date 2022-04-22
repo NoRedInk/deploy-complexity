@@ -104,7 +104,7 @@ module DeployComplexity
       deploy_time = parse_when(to)
       last_time = parse_when(from)
 
-      hours = deploy_time && (deploy_time - last_time) / 60**2
+      hours = deploy_time && ((deploy_time - last_time) / (60**2))
 
       if hours.nil?
         "pending deploy"
@@ -158,12 +158,12 @@ module DeployComplexity
 
     def get_changed_files(range)
       files = `git diff --name-only #{range}`
-      filtered = files.split(/\n/).select { |f| pattern =~ f }.join('\n')
+      filtered = files.split(/\n/).grep(pattern).join('\n')
       DeployComplexity::ChangedFiles.new(filtered)
     end
 
     def makes_changes_to(merge)
-      commithash = merge.split(' ')[0]
+      commithash = merge.split[0]
       commits = `git log -m -1 --name-only --first-parent --pretty="format:" #{commithash}`.split(/\n/)
       commits.any? { |commit| pattern =~ commit }
     end
