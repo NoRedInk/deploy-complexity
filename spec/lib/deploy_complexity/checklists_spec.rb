@@ -9,7 +9,7 @@ describe Checklists do
     double(path: path, patch: patch)
   end
 
-  class TestChecklist < Checklists::Checklist
+  class TestChecklist < Checklists::Checklist # rubocop:disable Lint/ConstantDefinitionInBlock
     def human_name
       "Human Name"
     end
@@ -23,7 +23,7 @@ describe Checklists do
     end
   end
 
-  class PatchChecklist < Checklists::Checklist
+  class PatchChecklist < Checklists::Checklist # rubocop:disable Lint/ConstantDefinitionInBlock
     def human_name
       "patches"
     end

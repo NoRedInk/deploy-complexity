@@ -153,8 +153,7 @@ module DeployComplexity
 
     def get_merges(commits)
       merges = commits.grep(/Merges|\#\d+/)
-      merges = merges.select { |m| makes_changes_to(m) }
-      merges
+      merges.select { |m| makes_changes_to(m) }
     end
 
     def get_changed_files(range)
@@ -170,7 +169,7 @@ module DeployComplexity
     end
 
     def pattern
-      @pattern ||= options[:subdir] ? Regexp.new("^" + @options[:subdir]) : /.*/
+      @pattern ||= options[:subdir] ? Regexp.new("^#{@options[:subdir]}") : /.*/
     end
 
     def subdir

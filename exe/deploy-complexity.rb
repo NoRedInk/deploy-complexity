@@ -71,7 +71,7 @@ action ||=
   end
 
 options[:gh_url] ||=
-  "https://github.com/" + `git config --get remote.origin.url`[/:(.+).git/, 1]
+  "https://github.com/#{`git config --get remote.origin.url`[/:(.+).git/, 1]}"
 
 deploys = `git tag -l | grep #{branch}`.split(/\n/).drop(1)
 case action

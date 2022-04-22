@@ -12,14 +12,13 @@ module DeployComplexity
 
       return output unless added_attachments.any?
 
-      output + "\n\n" +
-        added_attachments.map { |a| format_attachment(a) }.join("\n\n")
+      "#{output}\n\n#{added_attachments.map { |a| format_attachment(a) }.join("\n\n")}"
     end
 
     private
 
     def format_attachment(attachment)
-      attachment.title + "\n" + attachment.text
+      "#{attachment.title}\n#{attachment.text}"
     end
   end
 end
