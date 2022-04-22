@@ -3,7 +3,7 @@ PATH
   specs:
     deploy-complexity (0.13.3)
       git (~> 1.7.0)
-      octokit (~> 4.0)
+      octokit (~> 4.22.0)
       slack-notifier (~> 2.3.2)
       values (~> 1.8.0)
 
