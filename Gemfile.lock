@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     deploy-complexity (0.13.4)
-      git (~> 1.7.0)
+      git (>= 1.7, < 1.12)
       octokit (~> 4.22.0)
       slack-notifier (~> 2.3.2)
       values (~> 1.8.0)
@@ -38,7 +38,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    git (1.7.0)
+    git (1.11.0)
       rchardet (~> 1.8)
     method_source (1.0.0)
     multipart-post (2.2.3)
