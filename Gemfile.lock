@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    deploy-complexity (0.13.4)
+    deploy-complexity (0.13.5)
       git (>= 1.7, < 1.12)
       octokit (~> 4.22.0)
       slack-notifier (~> 2.3.2)
