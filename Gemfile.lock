@@ -96,9 +96,7 @@ GEM
     slack-notifier (2.3.2)
     unicode-display_width (2.1.0)
     values (1.8.0)
-    webrick (1.7.0)
-    yard (0.9.27)
-      webrick (~> 1.7.0)
+    yard (0.9.35)
 
 PLATFORMS
   ruby
