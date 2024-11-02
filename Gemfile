@@ -8,7 +8,7 @@ gemspec
 gem 'git'
 gem 'pry'
 gem 'pry-doc'
-gem 'rubocop'
+gem 'rubocop', '>= 1.66.0'
 
 group :test do
   gem 'rspec'
